@@ -1,64 +1,147 @@
 grammar Crux;
+
 literal
  : Integer
  | True
  | False
  ;
- designator : Identifier ( '[' expr0 ']' )? ;
- type
-  : Identifier
-  ;
-op0 : '>=' | '<=' | '!=' | ':' | '>' | '<'|'==' ;
-op1 : '+' | '-' | '||' ;
-op2 : '*' | '/' | '&&' ;
 
-expr0 : expr1 ( op0 expr1 )? ;
-expr1 : expr2
-       | expr1 op1 expr2 ;
-expr2 : expr3
-       | expr2 op2 expr3 ;
-expr3 : '!' expr3
-       | '(' expr0 ')'
-       | designator
-       | callExpr
-       | literal ;
-callExpr : Identifier '(' exprList ')' ;
-exprList : ( expr0 ( ',' expr0 )* )? ;
+designator
+ : Identifier ( Open_bracket expr0 Close_bracket )?
+ ;
 
-param: type Identifier;
-paramList: (param (',' param)*)?;
+type
+ : Identifier
+ ;
+
+op0
+ : GE
+ | LE
+ | Not_Equal
+ | Equal
+ | GT
+ | LT
+ ;
+
+op1
+ : ADD
+ | SUB
+ | '||'
+ ;
+
+op2
+ : MUL
+ | DIV
+ | '&&'
+ ;
+
+expr0
+ : expr1 ( op0 expr1 )?
+ ;
+
+expr1
+ : expr2
+ | expr1 op1 expr2
+ ;
+
+expr2
+ : expr3
+ | expr2 op2 expr3
+ ;
+
+expr3
+ : '!' expr3
+ | Open_paren expr0 Close_paren
+ | designator
+ | callExpr
+ | literal
+ ;
+
+callExpr
+ : Identifier Open_paren exprList Close_paren
+ ;
+
+exprList
+ : ( expr0 ( ',' expr0 )* )?
+ ;
+
+param
+ : type Identifier
+ ;
+
+paramList
+ : ( param ( ',' param )* )?
+ ;
 
 varDecl
- : type Identifier ';'
+ : type Identifier SemiColon
  ;
- arrayDecl : type Identifier '[' Integer ']' ';' ;
- functionDefn: type Identifier '(' paramList ')' stmtBlock;
- decl
-  : varDecl
-  | arrayDecl
-  | functionDefn
-  ;
+
+arrayDecl
+ : type Identifier Open_bracket Integer Close_bracket SemiColon
+ ;
+
+functionDefn
+ : type Identifier Open_paren paramList Close_paren stmtBlock
+ ;
+
+decl
+ : varDecl
+ | arrayDecl
+ | functionDefn
+ ;
+
 declList
  : decl*
  ;
 
- assignStmt : designator '=' expr0 ';' ;
- callStmt : callExpr ';' ;
- ifStmt : 'if' expr0 stmtBlock ( 'else' stmtBlock )? ;
- loopStmt : 'loop' stmtBlock ;
- breakStmt : 'break' ';' ;
- continueStmt : 'continue' ';' ;
- returnStmt : 'return' expr0 ';' ;
- stmt :  varDecl
-       | callStmt
-       | assignStmt
-       | ifStmt
-       | loopStmt
-       | breakStmt
-       | continueStmt
-       | returnStmt ;
-stmtList: (stmt)*;
-stmtBlock: '{' stmtList '}';
+assignStmt
+ : designator Assign expr0 SemiColon
+ ;
+
+callStmt
+ : callExpr SemiColon
+ ;
+
+ifStmt
+ : 'if' expr0 stmtBlock ( 'else' stmtBlock )?
+ ;
+
+loopStmt
+ : 'loop' stmtBlock
+ ;
+
+breakStmt
+ : 'break' SemiColon
+ ;
+
+continueStmt
+ : 'continue' SemiColon
+ ;
+
+returnStmt
+ : 'return' expr0 SemiColon
+ ;
+
+stmt
+ : varDecl
+ | callStmt
+ | assignStmt
+ | ifStmt
+ | loopStmt
+ | breakStmt
+ | continueStmt
+ | returnStmt
+ ;
+
+stmtList
+ : stmt*
+ ;
+
+stmtBlock
+ : Open_brace stmtList Close_brace
+ ;
+
 program
  : declList EOF
  ;
@@ -84,3 +167,23 @@ WhiteSpaces
 Comment
  : '//' ~[\r\n]* -> skip
  ;
+
+Open_paren: '(';
+Close_paren: ')';
+Open_brace: '{';
+Close_brace: '}';
+Open_bracket: '[';
+Close_bracket: ']';
+
+ADD: '+';
+SUB: '-';
+MUL: '*';
+DIV: '/';
+GE: '>=';
+LE: '<=';
+Not_Equal: '!=';
+Equal: '==';
+GT: '>';
+LT: '<';
+Assign: '=';
+Comma: ',';
