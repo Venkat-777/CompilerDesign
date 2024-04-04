@@ -1,96 +1,67 @@
 grammar Crux;
-program
- : declList EOF
- ;
-
-declList
- : decl*
- ;
-
-decl
- : varDecl
- | functionDefn
- // | arrayDecl
- ;
-
-varDecl
- : type Identifier SemiColon
- ;
-
-functionDefn
-: type Identifier Open_paren paramList Close_paren stmtBlock
-;
-
-//arrayDecl
-// :
-// ;
-
-type
- : Identifier
- ;
-
 literal
  : Integer
  | True
  | False
  ;
+ designator : Identifier ( '[' expr0 ']' )? ;
+ type
+  : Identifier
+  ;
+op0 : '>=' | '<=' | '!=' | ':' | '>' | '<'|'==' ;
+op1 : '+' | '-' | '||' ;
+op2 : '*' | '/' | '&&' ;
 
-designator
-: Identifier ( Open_braket expr0 Close_bracket )?
-;
-
-paramList
-: ( param ( ',' param )* )?
-;
+expr0 : expr1 ( op0 expr1 )? ;
+expr1 : expr2
+       | expr1 op1 expr2 ;
+expr2 : expr3
+       | expr2 op2 expr3 ;
+expr3 : '!' expr3
+       | '(' expr0 ')'
+       | designator
+       | callExpr
+       | literal ;
+callExpr : Identifier '(' exprList ')' ;
+exprList : ( expr0 ( ',' expr0 )* )? ;
 
 param: type Identifier;
+paramList: (param (',' param)*)?;
 
-stmtBlock
-: Open_brace stmtList Close_brace
-;
+varDecl
+ : type Identifier ';'
+ ;
+ arrayDecl : type Identifier '[' Integer ']' ';' ;
+ functionDefn: type Identifier '(' paramList ')' stmtBlock;
+ decl
+  : varDecl
+  | arrayDecl
+  | functionDefn
+  ;
+declList
+ : decl*
+ ;
 
-stmtList
-: stmt*
-;
-
-stmt
-: varDecl
-| callStmt
-;
-
-callStmt
-: callExpr SemiColon
-;
-
-callExpr
-: Identifier Open_paren exprList Close_paren
-;
-
-exprList
-: ( expr0 ( ',' expr0 )* )?
-;
-
-expr0
-: expr1 ( op0 expr1 )?
-;
-
-expr1
-: expr2
-| expr1 op1 expr2
-;
-
-expr2
-: expr3
-| expr2 op2 expr3
-;
-
-expr3
-: '!' expr3
-| Open_paren expr0 Close_paren
-| designator
-| callExpr
-| literal
-;
+ assignStmt : designator '=' expr0 ';' ;
+ callStmt : callExpr ';' ;
+ ifStmt : 'if' expr0 stmtBlock ( 'else' stmtBlock )? ;
+ loopStmt : 'loop' stmtBlock ;
+ breakStmt : 'break' ';' ;
+ continueStmt : 'continue' ';' ;
+ returnStmt : 'return' expr0 ';' ;
+ stmt :  varDecl
+       | callStmt
+       | assignStmt
+       | ifStmt
+       | loopStmt
+       | breakStmt
+       | continueStmt
+       | returnStmt ;
+stmtList: (stmt)*;
+stmtBlock: '{' stmtList '}';
+program
+ : declList EOF
+ ;
 
 SemiColon: ';';
 
@@ -113,35 +84,3 @@ WhiteSpaces
 Comment
  : '//' ~[\r\n]* -> skip
  ;
-
-AND: '&&';
-OR: '||';
-NOT: '!';
-IF: 'if';
-ELSE: 'else';
-FOR: 'for';
-BREAK: 'break';
-RETURN: 'return';
-
-Open_paren: '(';
-Close_paren: ')';
-Open_brace: '{';
-Close_brace: '}';
-Open_braket: '[';
-Close_bracket: ']';
-ADD: '+';
-SUB: '-';
-MUL: '*';
-DIV: '/';
-GE: '>=';
-LE: '<=';
-Not_Equal: '!=';
-Equal: '==';
-GT: '>';
-LT: '<';
-Assign: '=';
-Comma: ',';
-
-op0: '>=' | '<=' | '!=' | '==' | '>' | '<' ;
-op1: '+' | '-' | '||';
-op2: '*' | '/' | '&&';
