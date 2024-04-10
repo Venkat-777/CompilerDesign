@@ -14,7 +14,7 @@ import java.util.Map;
  * source. The symbol table is made up of scopes, Each scope is a map which maps an identifier to
  * it's symbol. Scopes are inserted to the table starting from the first scope (Global Scope). The
  * Global scope is the first scope in each Crux program and it contains all the built in functions
- * and names. The symbol table is an ArrayList of scops.
+ * and names. The symbol table is an ArrayList of scopes.
  */
 public final class SymbolTable {
 
@@ -85,6 +85,8 @@ public final class SymbolTable {
   SymbolTable(PrintStream err) {
     this.err = err;
     //TODO
+    // add the reserved words/symbols
+
   }
 
   boolean hasEncounteredError() {
@@ -136,6 +138,7 @@ public final class SymbolTable {
    */
   private Symbol find(String name) {
     //TODO
+
     return null;
   }
 }
