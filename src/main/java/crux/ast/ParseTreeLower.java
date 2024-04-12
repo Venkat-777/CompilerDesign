@@ -139,16 +139,6 @@ public final class ParseTreeLower {
      */
 
     /**
-     * Visit a parse tree assignment nosemi stmt and create an AST {@link Assignment}
-     *
-     * @return an AST {@link Assignment}
-     */
-    /*
-     * @Override
-     * public Statement visitAssignStmtNoSemi(CruxParser.AssignStmtNoSemiContext ctx) { }
-     */
-
-    /**
      * Visit a parse tree call stmt and create an AST {@link Call}. Since {@link Call} is both
      * {@link Expression} and {@link Statementt}, we simply delegate this to
      * {@link ExprVisitor#visitCallExpr(CruxParser.CallExprContext)} that we will implement later.

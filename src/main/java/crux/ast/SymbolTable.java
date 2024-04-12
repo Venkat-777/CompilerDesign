@@ -4,6 +4,7 @@ import crux.ast.Position;
 import crux.ast.types.*;
 
 
+import javax.management.openmbean.ArrayType;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,8 +86,14 @@ public final class SymbolTable {
   SymbolTable(PrintStream err) {
     this.err = err;
     //TODO
-    // add the reserved words/symbols
-
+    Map<String, Symbol> globalScope = new HashMap<>();
+    symbolScopes.add(globalScope);
+    add(null, "readInt",    new FuncType(TypeList.of(), new IntType()));
+    add(null, "readChar",   new FuncType(TypeList.of(), new IntType()));
+    add(null, "printBool",  new FuncType(TypeList.of(new BoolType()), new VoidType()));
+    add(null, "printInt",   new FuncType(TypeList.of(new IntType()), new VoidType()));
+    add(null, "printChar",  new FuncType(TypeList.of(new IntType()), new VoidType()));
+    add(null, "println",    new FuncType(TypeList.of(), new VoidType()));
   }
 
   boolean hasEncounteredError() {
@@ -99,6 +106,8 @@ public final class SymbolTable {
 
   void enter() {
     //TODO
+    Map<String, Symbol> newScope = new HashMap<>();
+    symbolScopes.add(newScope); //add a new scope
   }
 
   /**
@@ -107,19 +116,22 @@ public final class SymbolTable {
 
   void exit() {
     //TODO
+    symbolScopes.remove(symbolScopes.size()-1); //delete the last scope
   }
 
   /**
    * Insert a symbol to the table at the most recent scope. if the name already exists in the
-   * current scope that's a declareation error.
+   * current scope that's a declaration error.
    */
   Symbol add(Position pos, String name, Type type) {
     //TODO
+    Map<String, Symbol> currentScope = symbolScopes.get(symbolScopes.size()-1);
+    currentScope.put(name, new Symbol(name, type));
     return null;
   }
 
   /**
-   * lookup a name in the SymbolTable, if the name not found in the table it shouold encounter an
+   * lookup a name in the SymbolTable, if the name not found in the table it should encounter an
    * error and return a symbol with ResolveSymbolError error. if the symbol is found then return it.
    */
   Symbol lookup(Position pos, String name) {
@@ -134,11 +146,17 @@ public final class SymbolTable {
   }
 
   /**
-   * Try to find a symbol in the table starting form the most recent scope.
+   * Try to find a symbol in the table starting from the most recent scope.
    */
   private Symbol find(String name) {
     //TODO
-
+      for (Map<String, Symbol> currentScope : symbolScopes)
+      {
+          if (currentScope.containsKey(name))
+          {
+              return currentScope.get(name);
+          }
+      }
     return null;
   }
 }
