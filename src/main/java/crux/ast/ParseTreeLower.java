@@ -2,6 +2,7 @@ package crux.ast;
 
 import crux.ast.*;
 import crux.ast.OpExpr.Operation;
+import crux.ir.Function;
 import crux.pt.CruxBaseVisitor;
 import crux.pt.CruxParser;
 import crux.ast.types.*;
@@ -50,8 +51,15 @@ public final class ParseTreeLower {
    * @return a {@link DeclList} object representing the top-level AST.
    */
 
-  public DeclarationList lower(CruxParser.ProgramContext program) {
-    return null;
+  public DeclarationList lower(CruxParser.ProgramContext program)
+  {
+    List<Declaration> decList = new ArrayList<>();
+    var decListCtx = program.declList().decl();
+    for(var declCtx: decListCtx)
+    {
+      decList.add(declCtx.accept(declVisitor));
+    }
+    return new DeclarationList(makePosition(program), decList);
   }
 
   /**
@@ -60,7 +68,16 @@ public final class ParseTreeLower {
    * @return a {@link StmtList} AST object.
    */
 
-  // private StatementList lower(CruxParser.StmtListContext stmtList) { }
+  private StatementList lower(CruxParser.StmtListContext stmtList)
+  {
+    List<Statement> stmtCtxArray = new ArrayList<>();
+    var stmtListCtx = stmtList.stmt();
+    for(var stmtCtx : stmtListCtx)
+    {
+      stmtCtxArray.add(stmtCtx.accept(stmtVisitor));
+    }
+    return new StatementList(makePosition(stmtList), stmtCtxArray);
+  }
 
 
   /**
@@ -68,7 +85,28 @@ public final class ParseTreeLower {
    *
    * @return a {@link StmtList} AST object.
    */
-  // private StatementList lower(CruxParser.StmtBlockContext stmtBlock) { }
+  private StatementList lower(CruxParser.StmtBlockContext stmtBlock)
+  {
+    symTab.enter();
+    var stmtBlk = lower(stmtBlock.stmtList());
+    symTab.exit();
+    return stmtBlk;
+  }
+
+  public Type getType(String ctx)
+  {
+      switch(ctx)
+      {
+          case("void"):
+              return new VoidType();
+          case("int"):
+              return new IntType();
+          case("bool"):
+              return new BoolType();
+          default:
+              return new ErrorType("error: prs lower(119)");
+      }
+  }
 
   /**
    * A parse tree visitor to create AST nodes derived from {@link Declaration}
@@ -79,11 +117,13 @@ public final class ParseTreeLower {
      *
      * @return an AST {@link VariableDeclaration}
      */
-
-    /*
-     * @Override
-     * public VariableDeclaration visitVarDecl(CruxParser.VarDeclContext ctx) { }
-     */
+    @Override
+    public VariableDeclaration visitVarDecl(CruxParser.VarDeclContext ctx)
+    {
+      Type ctxType = getType(ctx.type().Identifier().getText());
+      Symbol sym = symTab.add(makePosition(ctx), ctx.Identifier().getText(), ctxType);
+      return new VariableDeclaration(makePosition(ctx), sym);
+    }
 
 
     /**
@@ -91,23 +131,36 @@ public final class ParseTreeLower {
      *
      * @return an AST {@link ArrayDeclaration}
      */
-    /*
-     *    @Override
-     * public Declaration visitArrayDecl(CruxParser.ArrayDeclContext ctx) { }
-     */
-
+     public Declaration visitArrayDecl(CruxParser.ArrayDeclContext ctx)
+     {
+       Type ctxType = getType(ctx.type().Identifier().getText());
+       Symbol sym = symTab.add(makePosition(ctx), ctx.Identifier().getText(), ctxType);
+       return new ArrayDeclaration(makePosition(ctx), sym);
+     }
 
     /**
      * Visit a parse tree function definition and create an AST {@link FunctionDefinition}
      *
      * @return an AST {@link FunctionDefinition}
      */
-    /*
-     *    @Override
-     * public Declaration visitFunctionDefn(CruxParser.FunctionDefnContext ctx) { }
-     */
-  }
 
+     @Override
+     public Declaration visitFunctionDefn(CruxParser.FunctionDefnContext ctx)
+     {
+       Type ctxType = getType(ctx.type().Identifier().getText());
+       Symbol sym = symTab.add(makePosition(ctx), ctx.Identifier().getText(), ctxType);
+       List<Symbol> paramList = new ArrayList<>();
+       List<CruxParser.ParamContext> paramCtxts = ctx.paramList().param();
+       for (var paramCtx : paramCtxts)
+       {
+         ctxType = getType(paramCtx.type().Identifier().getText());
+         paramList.add(symTab.add(makePosition(paramCtx), paramCtx.Identifier().getText(), ctxType));
+       }
+       StatementList stmtL = lower(ctx.stmtBlock());
+       return new FunctionDefinition(makePosition(ctx), sym, paramList, stmtL);
+     }
+
+  }
 
   /**
    * A parse tree visitor to create AST nodes derived from {@link Stmt}
@@ -123,20 +176,25 @@ public final class ParseTreeLower {
      * @return an AST {@link VariableDeclaration}
      */
 
-    /*
-     * @Override
-     * public Statement visitVarDecl(CruxParser.VarDeclContext ctx) { }
-     */
+    @Override
+    public Statement visitVarDecl(CruxParser.VarDeclContext ctx)
+    {
+      DeclVisitor declVisitor1 = new DeclVisitor();
+      return declVisitor1.visitVarDecl(ctx);
+    }
 
     /**
      * Visit a parse tree assignment stmt and create an AST {@link Assignment}
      *
      * @return an AST {@link Assignment}
      */
-    /*
-     * @Override
-     * public Statement visitAssignStmt(CruxParser.AssignStmtContext ctx) { }
-     */
+
+    //@Override
+    //public Statement visitAssignStmt(CruxParser.AssignStmtContext ctx)
+    //{
+
+    //}
+
 
     /**
      * Visit a parse tree call stmt and create an AST {@link Call}. Since {@link Call} is both
@@ -197,26 +255,29 @@ public final class ParseTreeLower {
 
   private final class ExprVisitor extends CruxBaseVisitor<Expression> {
     /**
-     * Parse Expr0 to OpExpr Node Parsing the expr should be exactly as described in the grammer
+     * Parse Expr0 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
-    // @Override
-    //public Expression visitExpr0(CruxParser.Expr0Context ctx) {}
+    //@Override
+    //public Expression visitExpr0(CruxParser.Expr0Context ctx)
+    //{
+
+    //}
 
     /**
-     * Parse Expr1 to OpExpr Node Parsing the expr should be exactly as described in the grammer
+     * Parse Expr1 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
     //@Override
     //public Expression visitExpr1(CruxParser.Expr1Context ctx) {}
 
 
     /**
-     * Parse Expr2 to OpExpr Node Parsing the expr should be exactly as described in the grammer
+     * Parse Expr2 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
     //@Override
     //public Expression visitExpr2(CruxParser.Expr2Context ctx) {}
 
     /**
-     * Parse Expr3 to OpExpr Node Parsing the expr should be exactly as described in the grammer
+     * Parse Expr3 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
     //@Override
     //public Expression visitExpr3(CruxParser.Expr3Context ctx) {}

@@ -126,8 +126,15 @@ public final class SymbolTable {
   Symbol add(Position pos, String name, Type type) {
     //TODO
     Map<String, Symbol> currentScope = symbolScopes.get(symbolScopes.size()-1);
-    currentScope.put(name, new Symbol(name, type));
-    return null;
+    if (currentScope.containsKey(name))
+    {
+      err.printf("AlreadyDefinedSymbolError%s[Already defined %s.]%n", pos, name);
+      encounteredError = true;
+      return new Symbol(name, "AlreadyDefinedSymbolError");
+    }
+    Symbol newSymbol = new Symbol(name, type);
+    currentScope.put(name, newSymbol);
+    return newSymbol;
   }
 
   /**
