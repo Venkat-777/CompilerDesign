@@ -237,11 +237,11 @@ public final class ParseTreeLower {
      @Override
      public Statement visitIfStmt(CruxParser.IfStmtContext ctx)
      {
-//       Expression condition = ctx.expr0().accept(exprVisitor);
-//
-//       List<Statement> thenBlock;
-//       List<Statement> elseBlock;
-//       return new IfElseBranch(makePosition(ctx), condition, thenBlock, elseBlock);
+       Expression condition = ctx.expr0().accept(exprVisitor);
+       StatementList thenBlock = lower(ctx.stmtBlock(0));
+       StatementList elseBlock = lower(ctx.stmtBlock(1));
+
+       return new IfElseBranch(makePosition(ctx), condition, thenBlock, elseBlock);
      }
 
 
@@ -251,10 +251,14 @@ public final class ParseTreeLower {
      *
      * @return an AST {@link Loop}
      */
-    /*
-     * @Override
-     *    public Statement visitLoopStmt(CruxParser.LoopStmtContext ctx) {}
-     */
+
+     @Override
+     public Statement visitLoopStmt(CruxParser.LoopStmtContext ctx)
+     {
+       StatementList body = lower(ctx.stmtBlock());
+       return new Loop(makePosition(ctx), body);
+     }
+
 
     /**
      * Visit a parse tree return stmt and create an AST {@link Return}. Here we show a simple
@@ -262,50 +266,121 @@ public final class ParseTreeLower {
      *
      * @return an AST {@link Return}
      */
-    //@Override
-    //public Statement visitReturnStmt(CruxParser.ReturnStmtContext ctx) {}
+    @Override
+    public Statement visitReturnStmt(CruxParser.ReturnStmtContext ctx)
+    {
+      Expression value = ctx.expr0().accept(exprVisitor);
+      return new Return(makePosition(ctx), value);
+    }
 
     /**
      * Creates a Break node
      */
-    //@Override
-    //public Statement visitBreakStmt(CruxParser.BreakStmtContext ctx) {}
+    @Override
+    public Statement visitBreakStmt(CruxParser.BreakStmtContext ctx)
+    {
+      return new Break(makePosition(ctx));
+    }
 
     /**
      * Creates a Continue node
      */
-    //@Override
-    //public Statement visitContinueStmt(CruxParser.ContinueStmtContext ctx) {}
+    @Override
+    public Statement visitContinueStmt(CruxParser.ContinueStmtContext ctx)
+    {
+      return new Continue(makePosition(ctx));
+    }
   }
 
   private final class ExprVisitor extends CruxBaseVisitor<Expression> {
     /**
      * Parse Expr0 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
-    //@Override
-    //public Expression visitExpr0(CruxParser.Expr0Context ctx)
-    //{
-
-    //}
+    @Override
+    public Expression visitExpr0(CruxParser.Expr0Context ctx)
+    {
+      Operation op;
+      switch (ctx.op0().getText())
+      {
+        case(">="):
+          op = Operation.GE;
+          break;
+        case("<="):
+          op = Operation.LE;
+          break;
+        case("!="):
+          op = Operation.NE;
+          break;
+        case("=="):
+          op = Operation.EQ;
+          break;
+        case(">"):
+          op = Operation.GT;
+          break;
+        case("<"):
+          op = Operation.LT;
+          break;
+        default:
+          op = null;
+      }
+      Expression left = ctx.expr1(0).accept(exprVisitor);
+      Expression right = ctx.expr1(1).accept(exprVisitor);
+      return new OpExpr(makePosition(ctx), op, left, right);
+    }
 
     /**
      * Parse Expr1 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
-    //@Override
-    //public Expression visitExpr1(CruxParser.Expr1Context ctx) {}
+    @Override
+    public Expression visitExpr1(CruxParser.Expr1Context ctx)
+    {
+      Expression left = ctx.expr1().accept(exprVisitor);
+      Expression right = ctx.expr2().accept(exprVisitor);
+      switch (ctx.op1().getText())
+      {
+        case("+"):
+          return new OpExpr(makePosition(ctx), Operation.ADD, left, right);
+        case("-"):
+          return new OpExpr(makePosition(ctx), Operation.SUB, left, right);
+        case("||"):
+          return new OpExpr(makePosition(ctx), Operation.LOGIC_OR, left, right);
+        default:
+          left = ctx.expr2().accept(exprVisitor);
+          return new OpExpr(makePosition(ctx), null, left, null);
+      }
+    }
 
 
     /**
      * Parse Expr2 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
-    //@Override
-    //public Expression visitExpr2(CruxParser.Expr2Context ctx) {}
+    @Override
+    public Expression visitExpr2(CruxParser.Expr2Context ctx)
+    {
+      Expression left = ctx.expr2().accept(exprVisitor);
+      Expression right = ctx.expr3().accept(exprVisitor);
+      switch (ctx.op2().getText())
+      {
+        case("*"):
+          return new OpExpr(makePosition(ctx), Operation.MULT, left, right);
+        case("/"):
+          return new OpExpr(makePosition(ctx), Operation.DIV, left, right);
+        case("&&"):
+          return new OpExpr(makePosition(ctx), Operation.LOGIC_AND, left, right);
+        default:
+          left = ctx.expr3().accept(exprVisitor);
+          return new OpExpr(makePosition(ctx), null, left, null);
+      }
+    }
 
     /**
      * Parse Expr3 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
-    //@Override
-    //public Expression visitExpr3(CruxParser.Expr3Context ctx) {}
+//    @Override
+//    public Expression visitExpr3(CruxParser.Expr3Context ctx)
+//    {
+//
+//    }
 
     /**
      * Create an Call Node
