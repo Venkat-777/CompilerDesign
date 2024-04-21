@@ -345,8 +345,7 @@ public final class ParseTreeLower {
         case("||"):
           return new OpExpr(makePosition(ctx), Operation.LOGIC_OR, left, right);
         default:
-          left = ctx.expr2().accept(exprVisitor);
-          return new OpExpr(makePosition(ctx), null, left, null);
+          return ctx.expr2().accept(exprVisitor);
       }
     }
 
@@ -368,37 +367,77 @@ public final class ParseTreeLower {
         case("&&"):
           return new OpExpr(makePosition(ctx), Operation.LOGIC_AND, left, right);
         default:
-          left = ctx.expr3().accept(exprVisitor);
-          return new OpExpr(makePosition(ctx), null, left, null);
+          return ctx.expr3().accept(exprVisitor);
       }
     }
 
     /**
      * Parse Expr3 to OpExpr Node Parsing the expr should be exactly as described in the grammar
      */
-//    @Override
-//    public Expression visitExpr3(CruxParser.Expr3Context ctx)
-//    {
-//
-//    }
+    @Override
+    public Expression visitExpr3(CruxParser.Expr3Context ctx)
+    {
+      if (ctx.designator() != null)
+      {
+        return ctx.designator().accept(exprVisitor);
+      } else if (ctx.callExpr() != null)
+      {
+        return ctx.callExpr().accept(exprVisitor);
+      } else if (ctx.literal() != null)
+      {
+        return ctx.literal().accept(exprVisitor);
+      } else if (ctx.expr0() != null)
+      {
+        return ctx.expr0().accept(exprVisitor);
+      } else
+      {
+        return ctx.expr3().accept(exprVisitor);
+      }
+    }
 
     /**
      * Create an Call Node
      */
     @Override
-    public Call visitCallExpr(CruxParser.CallExprContext ctx) {}
+    public Call visitCallExpr(CruxParser.CallExprContext ctx)
+    {
+      Symbol callee = symTab.lookup(makePosition(ctx), ctx.Identifier().getText());
+      List<CruxParser.Expr0Context> argCtxList = ctx.exprList().expr0();
+      List<Expression> args = new ArrayList<>();
+      for (var argCtx : argCtxList)
+      {
+        args.add(argCtx.accept(exprVisitor));
+      }
+      return new Call(makePosition(ctx), callee, args);
+    }
 
     /**
      * visitDesignator will check for a name or ArrayAccess FYI it should account for the case when
      * the designator was dereferenced
      */
     @Override
-    public Expression visitDesignator(CruxParser.DesignatorContext ctx) {}
+    public Expression visitDesignator(CruxParser.DesignatorContext ctx)
+    {
+      Symbol base = symTab.lookup(makePosition(ctx), ctx.Identifier().getText());
+      Expression index = ctx.expr0().accept(exprVisitor);
+      return new ArrayAccess(makePosition(ctx), base, index);
+    }
 
     /**
      * Create an Literal Node
      */
-    //@Override
-    //public Expression visitLiteral(CruxParser.LiteralContext ctx) {}
+    @Override
+    public Expression visitLiteral(CruxParser.LiteralContext ctx)
+    {
+      if (ctx.getText() == "int")
+      {
+          long valueInt = Long.parseLong(ctx.getText());
+          return new LiteralInt(makePosition(ctx), valueInt);
+      } else
+      {
+        boolean valueBool = Boolean.parseBoolean(ctx.getText());
+        return  new LiteralBool(makePosition(ctx), valueBool);
+      }
+    }
   }
 }
