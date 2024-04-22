@@ -17,7 +17,7 @@ public final class IfElseBranch extends BaseNode implements Statement, java.io.S
    * @param position is the location of the statement in the source,
    * @param condition is the expression for the if condition.
    * @param thenBlock is the StatementList for the code that is executed if the condition is true.
-   * @param elseBlock is the StatementList for the code that is executed if the condition is true.
+   * @param elseBlock is the StatementList for the code that is executed if the condition is false.
    */
 
   public IfElseBranch(Position position, Expression condition, StatementList thenBlock,

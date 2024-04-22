@@ -238,11 +238,18 @@ public final class ParseTreeLower {
      @Override
      public Statement visitIfStmt(CruxParser.IfStmtContext ctx)
      {
-       Expression condition = ctx.expr0().accept(exprVisitor);
-       StatementList thenBlock = lower(ctx.stmtBlock(0));
-       StatementList elseBlock = lower(ctx.stmtBlock(1));
+         Expression condition = ctx.expr0().accept(exprVisitor);
+         StatementList thenBlock = lower(ctx.stmtBlock(0));
 
-       return new IfElseBranch(makePosition(ctx), condition, thenBlock, elseBlock);
+         if (ctx.stmtBlock(1) != null)
+         {
+             StatementList elseBlock = lower(ctx.stmtBlock(1));
+             return new IfElseBranch(makePosition(ctx), condition, thenBlock, elseBlock);
+         }
+
+         List<Statement> empty = new ArrayList<>();
+         StatementList emtpyList = new StatementList(makePosition(ctx), empty);
+         return new IfElseBranch(makePosition(ctx), condition, thenBlock, emtpyList);
      }
 
 
@@ -352,10 +359,13 @@ public final class ParseTreeLower {
             {
                 case("+"):
                     op = Operation.ADD;
+                    break;
                 case("-"):
                     op = Operation.SUB;
+                    break;
                 case("||"):
                     op = Operation.LOGIC_OR;
+                    break;
                 default:
                     op = null;
             }
@@ -382,10 +392,13 @@ public final class ParseTreeLower {
             {
                 case("*"):
                     op = Operation.MULT;
+                    break;
                 case("/"):
                     op = Operation.DIV;
+                    break;
                 case("&&"):
                     op = Operation.LOGIC_AND;
+                    break;
                 default:
                     op = null;
             }
@@ -457,7 +470,7 @@ public final class ParseTreeLower {
     @Override
     public Expression visitLiteral(CruxParser.LiteralContext ctx)
     {
-      if (ctx.getText() == "int")
+      if (ctx.Integer() != null)
       {
           long valueInt = Long.parseLong(ctx.getText());
           return new LiteralInt(makePosition(ctx), valueInt);
