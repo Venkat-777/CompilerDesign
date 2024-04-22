@@ -215,7 +215,7 @@ public final class ParseTreeLower {
 
     /**
      * Visit a parse tree call stmt and create an AST {@link Call}. Since {@link Call} is both
-     * {@link Expression} and {@link Statementt}, we simply delegate this to
+     * {@link Expression} and {@link Statement}, we simply delegate this to
      * {@link ExprVisitor#visitCallExpr(CruxParser.CallExprContext)} that we will implement later.
      *
      * @return an AST {@link Call}
@@ -223,7 +223,7 @@ public final class ParseTreeLower {
      @Override
      public Statement visitCallStmt(CruxParser.CallStmtContext ctx)
      {
-       return ctx.callExpr().accept(stmtVisitor);
+         return exprVisitor.visitCallExpr(ctx.callExpr());
      }
 
 
@@ -426,7 +426,9 @@ public final class ParseTreeLower {
         return ctx.expr0().accept(exprVisitor);
       } else
       {
-        return ctx.expr3().accept(exprVisitor);
+          Operation op = Operation.LOGIC_NOT;
+          Expression left = ctx.expr3().accept(exprVisitor);
+          return new OpExpr(makePosition(ctx), op, left, null);
       }
     }
 
@@ -437,11 +439,15 @@ public final class ParseTreeLower {
     public Call visitCallExpr(CruxParser.CallExprContext ctx)
     {
       Symbol callee = symTab.lookup(makePosition(ctx), ctx.Identifier().getText());
-      List<CruxParser.Expr0Context> argCtxList = ctx.exprList().expr0();
       List<Expression> args = new ArrayList<>();
-      for (var argCtx : argCtxList)
+
+      if (ctx.exprList() != null)
       {
-        args.add(argCtx.accept(exprVisitor));
+          List<CruxParser.Expr0Context> argCtxList = ctx.exprList().expr0();
+          for (var argCtx : argCtxList)
+          {
+              args.add(argCtx.accept(exprVisitor));
+          }
       }
       return new Call(makePosition(ctx), callee, args);
     }
