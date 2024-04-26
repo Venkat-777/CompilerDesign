@@ -24,9 +24,25 @@ public final class BoolType extends Type implements java.io.Serializable {
     }
   }
 
+  public Type or(Type that)
+  {
+    if(this.equivalent(that))
+    {
+      return new BoolType();
+    } else {
+      return super.or(that);
+    }
+  }
+
+  public Type not()
+  {
+    return new BoolType();
+  }
+
   @Override
   public boolean equivalent(Type that)
   {
     return (this.getClass() == that.getClass());
   }
+
 }
