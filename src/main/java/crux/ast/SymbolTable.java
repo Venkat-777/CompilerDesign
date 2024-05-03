@@ -157,13 +157,12 @@ public final class SymbolTable {
    */
   private Symbol find(String name) {
     //TODO
-      for (Map<String, Symbol> currentScope : symbolScopes)
-      {
-          if (currentScope.containsKey(name))
-          {
-              return currentScope.get(name);
-          }
-      }
+    for (int i = symbolScopes.size()-1; i >= 0; i--)
+    {
+      Map<String, Symbol> currentScope = symbolScopes.get(i);
+      if (currentScope.containsKey(name))
+        return currentScope.get(name);
+    }
     return null;
   }
 }
