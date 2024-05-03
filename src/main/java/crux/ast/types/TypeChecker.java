@@ -114,7 +114,7 @@ public final class TypeChecker {
             argumentListType.append(getType(child));
         }
         var calleType = call.getCallee().getType();
-        calleType.call(argumentListType);
+        setNodeType(call, calleType.call(argumentListType));
         lastStatementReturns = false;
         return null;
     }
@@ -210,7 +210,7 @@ public final class TypeChecker {
     {
       hasBreak = false;
       loop.getBody().accept(this);
-      if (!(hasBreak && lastStatementReturns))
+      if (!hasBreak && !lastStatementReturns)
           addTypeError(loop, "infinite loop");
       return null;
     }
@@ -272,7 +272,8 @@ public final class TypeChecker {
       var currentFunctionReturnType = curentFunction.getRet();
 
       if (!returnExprType.equivalent(currentFunctionReturnType))
-        addTypeError(ret, "return expression type does not match function return type");
+          addTypeError(ret, returnExprType.toString());
+        //addTypeError(ret, "return expression type does not match function return type");
 
       lastStatementReturns = true;
       return null;

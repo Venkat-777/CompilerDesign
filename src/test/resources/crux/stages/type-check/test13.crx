@@ -5,5 +5,5 @@ int myInt() {
 }
 
 void main() {
-
+  printInt(myInt());
 }

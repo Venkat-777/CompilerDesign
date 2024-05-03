@@ -12,10 +12,10 @@ void main() {
       int a;
       a = 3;
       if(true) {
-        bool a;
-	a = true;
-	printBool(a);
-	println();
+       bool a;
+        a = true;
+        printBool(a);
+        println();
       }
       printInt(a);
       println();
