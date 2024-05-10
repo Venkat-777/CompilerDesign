@@ -14,7 +14,58 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-class InstPair {
+class InstPair
+{
+  Instruction start, end;
+  Value val;
+  public InstPair(Instruction start, Instruction end, Value val)
+  {
+    this.start = start;
+    this.end = end;
+    this.val = val;
+  }
+
+  public InstPair(Instruction one, Value val)
+  {
+    this.start = one;
+    this.end = one;
+    this.val = val;
+  }
+
+  public InstPair(Instruction start, Instruction end)
+  {
+    this.start = start;
+    this.end = end;
+    this.val = null;
+  }
+
+  public InstPair(Instruction one)
+  {
+    this.start = one;
+    this.end = one;
+    this.val = null;
+  }
+
+  public Instruction getStart() {
+    return start;
+  }
+
+  public Instruction getEnd() {
+    return end;
+  }
+
+  public void setVal(Value val) {
+    this.val = val;
+  }
+
+  public Value getVal() {
+    return val;
+  }
+
+  public void addToEnd(InstPair child)
+  {
+    this.end.setNext(0, child.start);
+  }
 }
 
 
@@ -38,7 +89,13 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   }
 
   @Override
-  public InstPair visit(DeclarationList declarationList) {
+  public InstPair visit(DeclarationList declarationList)
+  {
+    mCurrentProgram = new Program();
+    for (var declaration : declarationList.getChildren())
+    {
+      declaration.accept(this);
+    }
     return null;
   }
 
@@ -47,12 +104,30 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * to the localVarMap, add the function to the program, and init the function start Instruction.
    */
   @Override
-  public InstPair visit(FunctionDefinition functionDefinition) {
+  public InstPair visit(FunctionDefinition functionDefinition)
+  {
+    mCurrentFunction = new Function(functionDefinition.getSymbol().getName(),
+                                    (FuncType) functionDefinition.getSymbol().getType());
+    mCurrentLocalVarMap = new HashMap<Symbol, LocalVar>();
+    List<LocalVar> args = new ArrayList<>();
+    for (var argument : functionDefinition.getParameters())
+    {
+      var localVar = mCurrentFunction.getTempVar(argument.getType());
+      mCurrentLocalVarMap.put(argument, localVar);
+      args.add(localVar);
+    }
+    mCurrentFunction.setArguments(args);
+    var inst = functionDefinition.getStatements().accept(this);
+    mCurrentFunction.setStart(inst.getStart());
+    mCurrentFunction = null;
+    mCurrentLocalVarMap = null;
     return null;
   }
 
   @Override
-  public InstPair visit(StatementList statementList) {
+  public InstPair visit(StatementList statementList)
+  {
+
     return null;
   }
 
