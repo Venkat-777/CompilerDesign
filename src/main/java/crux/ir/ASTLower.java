@@ -127,23 +127,53 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   @Override
   public InstPair visit(StatementList statementList)
   {
-
-    return null;
+    var startInst = new NopInst();
+    Instruction currentInst = startInst;
+    for (var stmt : statementList.getChildren())
+    {
+      var currentInstPair = stmt.accept(this);
+      currentInst.setNext(0, currentInstPair.getStart());
+      currentInst = currentInstPair.getEnd();
+    }
+    return new InstPair(startInst, currentInst); //value is null
   }
 
   /**
    * Declarations, could be either local or Global
    */
   @Override
-  public InstPair visit(VariableDeclaration variableDeclaration) {
-    return null;
+  public InstPair visit(VariableDeclaration variableDeclaration)
+  {
+    Symbol varDeclSym = variableDeclaration.getSymbol();
+    if (mCurrentFunction == null)
+    {
+      IntegerConstant value;
+      if (varDeclSym.getType().toString().startsWith("array"))
+      {
+        var arraySym = (ArrayType) varDeclSym.getType();
+        value = IntegerConstant.get(mCurrentProgram, arraySym.getExtent());
+      } else
+      {
+        value = IntegerConstant.get(mCurrentProgram, 1);
+      }
+      mCurrentProgram.addGlobalVar(new GlobalDecl(varDeclSym, value));
+    }
+    else
+    {
+      var tempVar = mCurrentFunction.getTempVar(varDeclSym.getType(), varDeclSym.getName());
+      mCurrentLocalVarMap.put(varDeclSym, tempVar);
+    }
+    return new InstPair(new NopInst());
   }
 
   /**
    * Create a declaration for array and connected it to the CFG
    */
   @Override
-  public InstPair visit(ArrayDeclaration arrayDeclaration) {
+  public InstPair visit(ArrayDeclaration arrayDeclaration)
+  {
+    var varDecl = new VariableDeclaration(arrayDeclaration.getPosition(), arrayDeclaration.getSymbol());
+    visit(varDecl); //arrayDecl are varDecl but with ArrayType
     return null;
   }
 
@@ -152,7 +182,19 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * LocalVar.
    */
   @Override
-  public InstPair visit(VarAccess name) {
+  public InstPair visit(VarAccess name)
+  {
+    var varType = name.getSymbol().getType();
+    var localVar = new LocalVar(varType);
+    if (mCurrentLocalVarMap == null) //scope is global
+    {
+      var address = new AddressAt(new AddressVar(varType), name.getSymbol(), localVar);
+      
+    }
+    else //scope is local
+    {
+      return new InstPair(new NopInst(), localVar);
+    }
     return null;
   }
 
