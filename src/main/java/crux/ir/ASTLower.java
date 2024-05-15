@@ -61,11 +61,6 @@ class InstPair
   public Value getVal() {
     return val;
   }
-
-  public void addToEnd(InstPair child)
-  {
-    this.end.setNext(0, child.start);
-  }
 }
 
 
@@ -87,6 +82,31 @@ public final class ASTLower implements NodeVisitor<InstPair> {
     visit(ast);
     return mCurrentProgram;
   }
+
+  public InstPair connect(InstPair startPair, InstPair endPair)
+  {
+    startPair.getEnd().setNext(0, endPair.getStart());
+    return new InstPair(startPair.getStart(), endPair.getEnd());
+  }
+
+  public InstPair connect(InstPair startPair, Instruction inst)
+  {
+    startPair.getEnd().setNext(0, inst);
+    return new InstPair(startPair.getStart(), inst);
+  }
+
+  public InstPair connect(Instruction inst, InstPair endPair)
+  {
+    inst.setNext(0, endPair.getStart());
+    return new InstPair(inst, endPair.getEnd());
+  }
+
+  public InstPair connect(Instruction start, Instruction end)
+  {
+    start.setNext(0, end);
+    return new InstPair(start, end);
+  }
+
 
   @Override
   public InstPair visit(DeclarationList declarationList)
@@ -184,18 +204,21 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   @Override
   public InstPair visit(VarAccess name)
   {
-    var varType = name.getSymbol().getType();
-    var localVar = new LocalVar(varType);
-    if (mCurrentLocalVarMap == null) //scope is global
-    {
-      var address = new AddressAt(new AddressVar(varType), name.getSymbol(), localVar);
-      
-    }
-    else //scope is local
+    var tempType = name.getSymbol().getType();
+    var localVar = mCurrentFunction.getTempVar(tempType);
+
+    if (mCurrentLocalVarMap.containsKey(name.getSymbol())) //scope is local
     {
       return new InstPair(new NopInst(), localVar);
     }
-    return null;
+    else //scope is global
+    {
+      var addressVar = mCurrentFunction.getTempAddressVar(tempType);
+      var address = new AddressAt(addressVar, name.getSymbol());
+      var load = new LoadInst(localVar, addressVar);
+      connect(address, load);
+      return new InstPair(address, load, localVar);
+    }
   }
 
   /**
@@ -232,8 +255,17 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * It should compute the address into the array, do the load, and return the value in a LocalVar.
    */
   @Override
-  public InstPair visit(ArrayAccess access) {
-    return null;
+  public InstPair visit(ArrayAccess access)
+  {
+    var baseType = access.getBase().getType();
+    var tempLocalVar = mCurrentFunction.getTempVar(baseType);
+    var index = access.getIndex().accept(this);
+    var addressVar = mCurrentFunction.getTempAddressVar(baseType);
+    var addressInst = new AddressAt(addressVar, access.getBase(), tempLocalVar);
+    var load = new LoadInst(tempLocalVar, addressVar);
+    connect(index, addressInst);
+    connect(addressInst, load);
+    return new InstPair(index.getStart(), load, tempLocalVar);
   }
 
   /**
