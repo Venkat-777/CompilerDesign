@@ -137,6 +137,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
       args.add(localVar);
     }
     mCurrentFunction.setArguments(args);
+    mCurrentProgram.addFunction(mCurrentFunction);
     var inst = functionDefinition.getStatements().accept(this);
     mCurrentFunction.setStart(inst.getStart());
     mCurrentFunction = null;
