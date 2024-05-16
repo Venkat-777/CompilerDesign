@@ -79,7 +79,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   public ASTLower() {}
 
   public Program lower(DeclarationList ast) {
-    visit(ast);
+    ast.accept(this);
     return mCurrentProgram;
   }
 
@@ -194,7 +194,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   public InstPair visit(ArrayDeclaration arrayDeclaration)
   {
     var varDecl = new VariableDeclaration(arrayDeclaration.getPosition(), arrayDeclaration.getSymbol());
-    visit(varDecl); //arrayDecl are varDecl but with ArrayType
+    varDecl.accept(this); //arrayDecl are varDecl but with ArrayType
     return null;
   }
 
@@ -228,6 +228,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    */
   @Override
   public InstPair visit(Assignment assignment) {
+    //Don't visit the lhs
     return null;
   }
 
@@ -235,8 +236,33 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * Lower a Call.
    */
   @Override
-  public InstPair visit(Call call) {
-    return null;
+  public InstPair visit(Call call)
+  {
+    var startInstPair = new InstPair(new NopInst());
+    InstPair prevInstPair = startInstPair;
+    List<LocalVar> params = new ArrayList<>();
+    for (var arg : call.getArguments())
+    {
+      var argInstPair = arg.accept(this);
+      connect(prevInstPair, argInstPair);
+
+      var argLocalVar = (LocalVar) argInstPair.getVal();
+      params.add(argLocalVar);
+
+      prevInstPair = argInstPair;
+    }
+
+    CallInst callInst;
+    if (prevInstPair.getVal() == null)
+    {
+      callInst = new CallInst(call.getCallee(), params);
+    }
+    else
+    {
+      var localVar = mCurrentFunction.getTempVar(call.getCallee().getType());
+      callInst = new CallInst(localVar, call.getCallee(), params);
+    }
+    return new InstPair (startInstPair.getStart(), callInst);
   }
 
   /**
@@ -244,11 +270,9 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * or, not).
    */
   @Override
-  public InstPair visit(OpExpr operation) {
-    return null;
-  }
+  public InstPair visit(OpExpr operation)
+  {
 
-  private InstPair visit(Expression expression) {
     return null;
   }
 
@@ -273,16 +297,24 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * Copy the literal into a tempVar
    */
   @Override
-  public InstPair visit(LiteralBool literalBool) {
-    return null;
+  public InstPair visit(LiteralBool literalBool)
+  {
+    var destVar = mCurrentFunction.getTempVar(literalBool.getType());
+    var boolConst = BooleanConstant.get(mCurrentProgram, literalBool.getValue());
+    var copy = new CopyInst(destVar, boolConst);
+    return new InstPair(copy, destVar);
   }
 
   /**
    * Copy the literal into a tempVar
    */
   @Override
-  public InstPair visit(LiteralInt literalInt) {
-    return null;
+  public InstPair visit(LiteralInt literalInt)
+  {
+    var destVar = mCurrentFunction.getTempVar(literalInt.getType());
+    var intConst = IntegerConstant.get(mCurrentProgram, literalInt.getValue());
+    var copy = new CopyInst(destVar, intConst);
+    return new InstPair(copy, destVar);
   }
 
   /**
@@ -313,8 +345,18 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * Implement If Then Else statements.
    */
   @Override
-  public InstPair visit(IfElseBranch ifElseBranch) {
-    return null;
+  public InstPair visit(IfElseBranch ifElseBranch)
+  {
+    var cond = ifElseBranch.getCondition().accept(this);
+    var jump = new JumpInst((LocalVar) cond.getVal());
+    var thenBlock = ifElseBranch.getThenBlock().accept(this);
+    var elseBlock = ifElseBranch.getElseBlock().accept(this);
+    jump.setNext(1, thenBlock.getStart()); //true
+    jump.setNext(0, elseBlock.getStart()); //false
+    var nop = new NopInst();
+    connect(thenBlock, nop);
+    connect(elseBlock, nop);
+    return new InstPair(cond.getStart(), nop);
   }
 
   /**
