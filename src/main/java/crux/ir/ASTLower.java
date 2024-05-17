@@ -123,8 +123,9 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   @Override
   public InstPair visit(FunctionDefinition functionDefinition)
   {
-    mCurrentFunction = new Function(functionDefinition.getSymbol().getName(),
-                                    (FuncType) functionDefinition.getSymbol().getType());
+    var funcName = functionDefinition.getSymbol().getName();
+    var funcType = (FuncType) functionDefinition.getSymbol().getType();
+    mCurrentFunction = new Function(funcName, funcType);
     mCurrentLocalVarMap = new HashMap<Symbol, LocalVar>();
     List<LocalVar> args = new ArrayList<>();
     for (var argument : functionDefinition.getParameters())
@@ -286,14 +287,16 @@ public final class ASTLower implements NodeVisitor<InstPair> {
     if (funcType.getRet() instanceof VoidType)
     {
       callInst = new CallInst(call.getCallee(), params);
+      connect(prevInstPair, callInst);
+      return new InstPair (startInstPair.getStart(), callInst);
     }
     else
     {
       var localVar = mCurrentFunction.getTempVar(funcType.getRet());
       callInst = new CallInst(localVar, call.getCallee(), params);
+      connect(prevInstPair, callInst);
+      return new InstPair (startInstPair.getStart(), callInst, localVar);
     }
-    connect(prevInstPair, callInst);
-    return new InstPair (startInstPair.getStart(), callInst);
   }
 
   /**
@@ -454,7 +457,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   public InstPair visit(Return ret)
   {
     var index = ret.getValue().accept(this);
-    var retInst =  new ReturnInst((LocalVar) index.getVal());
+    var retInst = new ReturnInst((LocalVar) index.getVal());
     connect(index, retInst);
     return new InstPair(index.getStart(), retInst);
   }
@@ -485,6 +488,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   {
     var cond = ifElseBranch.getCondition().accept(this);
     var jump = new JumpInst((LocalVar) cond.getVal());
+    connect(cond, jump);
     var thenBlock = ifElseBranch.getThenBlock().accept(this);
     var elseBlock = ifElseBranch.getElseBlock().accept(this);
     jump.setNext(1, thenBlock.getStart()); //true
