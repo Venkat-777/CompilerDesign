@@ -7,10 +7,7 @@ import crux.ast.traversal.NodeVisitor;
 import crux.ast.types.*;
 import crux.ir.insts.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -227,9 +224,39 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * VarAccess to a global, store the value. If the location is ArrayAccess, store the value.
    */
   @Override
-  public InstPair visit(Assignment assignment) {
-    //Don't visit the lhs
-    return null;
+  public InstPair visit(Assignment assignment)
+  {
+      var lhs = assignment.getLocation(); //don't visit lhs
+      var rhs = assignment.getValue().accept(this); //visit rhs
+
+      if (lhs instanceof VarAccess)
+      {
+          var destVar = mCurrentFunction.getTempVar(((VarAccess) lhs).getType());
+          if (mCurrentLocalVarMap.containsKey(((VarAccess) lhs).getSymbol())) //scope is local
+          {
+              var copy = new CopyInst(destVar, rhs.getVal());
+              connect(rhs, copy);
+              return new InstPair(rhs.getStart(), copy);
+          }
+          else //scope is global
+          {
+              var addressVar = mCurrentFunction.getTempAddressVar(((VarAccess) lhs).getType());
+              var addressAt = new AddressAt(addressVar, ((VarAccess) lhs).getSymbol());
+              var store = new StoreInst((LocalVar) rhs.getVal(), addressVar);
+              connect(addressAt, rhs);
+              connect(rhs, store);
+              return new InstPair(addressAt, store);
+          }
+      } else //lhs is ArrayAccess
+      {
+          var addressVar = mCurrentFunction.getTempAddressVar(((ArrayAccess) lhs).getType());
+          var index = ((ArrayAccess) lhs).getIndex().accept(this);
+          var addressAt = new AddressAt(addressVar, ((ArrayAccess) lhs).getBase(), (LocalVar) index.getVal());
+          var store = new StoreInst((LocalVar) rhs.getVal(), addressVar);
+          connect(addressAt, rhs);
+          connect(rhs, store);
+          return new InstPair(addressAt, store);
+      }
   }
 
   /**
@@ -270,10 +297,108 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * or, not).
    */
   @Override
-  public InstPair visit(OpExpr operation)
-  {
+  public InstPair visit(OpExpr operation) {
+      Operation op = operation.getOp();
+      InstPair lhs = operation.getLeft().accept(this);
+      InstPair rhs = null;
+      if(operation.getRight()!=null) //if rhs exists
+          rhs = operation.getRight().accept(this);
 
-    return null;
+      LocalVar dest = mCurrentFunction.getTempVar(operation.getType());
+      BinaryOperator bo;
+      CompareInst co;
+      UnaryNotInst uo;
+
+      switch (op.name())
+      {
+          case "ADD":
+              bo = new BinaryOperator(BinaryOperator.Op.Add,
+                      dest,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,bo);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "SUB":
+              bo = new BinaryOperator(BinaryOperator.Op.Sub,
+                      dest,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,bo);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "MUL":
+              bo = new BinaryOperator(BinaryOperator.Op.Mul,
+                      dest,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,bo);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "DIV":
+              bo = new BinaryOperator(BinaryOperator.Op.Div,
+                      dest,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,bo);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "GE":
+              co = new CompareInst(
+                      dest,
+                      CompareInst.Predicate.GE,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,co);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "GT":
+              co = new CompareInst(dest,
+                      CompareInst.Predicate.GT,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,co);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "LE":
+              co = new CompareInst(dest,
+                      CompareInst.Predicate.LE,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,co);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "LT":
+              co = new CompareInst(dest,
+                      CompareInst.Predicate.LT,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,co);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "EQ":
+              co = new CompareInst(dest,
+                      CompareInst.Predicate.EQ,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,co);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "NE":
+              co = new CompareInst(dest,
+                      CompareInst.Predicate.NE,
+                      (LocalVar)lhs.getVal(),
+                      (LocalVar)rhs.getVal() );
+              rhs.getEnd().setNext(0,co);
+              lhs.getEnd().setNext(0, rhs.getStart());
+              return new InstPair(lhs.getStart(),dest);
+          case "LOGIC_NOT":
+              uo = new UnaryNotInst(dest,(LocalVar)lhs.getVal());
+              lhs.getEnd().setNext(0, uo);
+              return new InstPair(lhs.getStart(),dest);
+          default:
+              return new InstPair(new NopInst());
+      }
   }
 
   /**
