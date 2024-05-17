@@ -203,14 +203,14 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   public InstPair visit(VarAccess name)
   {
     var tempType = name.getSymbol().getType();
-    var localVar = mCurrentFunction.getTempVar(tempType);
-
     if (mCurrentLocalVarMap.containsKey(name.getSymbol())) //scope is local
     {
+      var localVar = mCurrentLocalVarMap.get(name.getSymbol());
       return new InstPair(new NopInst(), localVar);
     }
     else //scope is global
     {
+      var localVar = mCurrentFunction.getTempVar(tempType);
       var addressVar = mCurrentFunction.getTempAddressVar(tempType);
       var address = new AddressAt(addressVar, name.getSymbol());
       var load = new LoadInst(localVar, addressVar);
@@ -231,9 +231,9 @@ public final class ASTLower implements NodeVisitor<InstPair> {
 
       if (lhs instanceof VarAccess)
       {
-          var destVar = mCurrentFunction.getTempVar(((VarAccess) lhs).getType());
           if (mCurrentLocalVarMap.containsKey(((VarAccess) lhs).getSymbol())) //scope is local
           {
+              var destVar = mCurrentLocalVarMap.get(((VarAccess) lhs).getSymbol());
               var copy = new CopyInst(destVar, rhs.getVal());
               connect(rhs, copy);
               return new InstPair(rhs.getStart(), copy);
@@ -249,13 +249,14 @@ public final class ASTLower implements NodeVisitor<InstPair> {
           }
       } else //lhs is ArrayAccess
       {
-          var addressVar = mCurrentFunction.getTempAddressVar(((ArrayAccess) lhs).getType());
           var index = ((ArrayAccess) lhs).getIndex().accept(this);
+          var addressVar = mCurrentFunction.getTempAddressVar(((ArrayAccess) lhs).getType());
           var addressAt = new AddressAt(addressVar, ((ArrayAccess) lhs).getBase(), (LocalVar) index.getVal());
           var store = new StoreInst((LocalVar) rhs.getVal(), addressVar);
+          connect(index, addressAt);
           connect(addressAt, rhs);
           connect(rhs, store);
-          return new InstPair(addressAt, store);
+          return new InstPair(index.getStart(), store);
       }
   }
 
@@ -280,15 +281,18 @@ public final class ASTLower implements NodeVisitor<InstPair> {
     }
 
     CallInst callInst;
-    if (prevInstPair.getVal() == null)
+    var calleeType = call.getCallee().getType();
+    var funcType = (FuncType) calleeType;
+    if (funcType.getRet() instanceof VoidType)
     {
       callInst = new CallInst(call.getCallee(), params);
     }
     else
     {
-      var localVar = mCurrentFunction.getTempVar(call.getCallee().getType());
+      var localVar = mCurrentFunction.getTempVar(funcType.getRet());
       callInst = new CallInst(localVar, call.getCallee(), params);
     }
+    connect(prevInstPair, callInst);
     return new InstPair (startInstPair.getStart(), callInst);
   }
 
@@ -316,9 +320,9 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       dest,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,bo);
-              lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              connect(lhs, rhs);
+              connect(rhs, bo);
+              return new InstPair(lhs.getStart(), bo, dest);
           case "SUB":
               bo = new BinaryOperator(BinaryOperator.Op.Sub,
                       dest,
@@ -326,7 +330,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,bo);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), bo, dest);
           case "MUL":
               bo = new BinaryOperator(BinaryOperator.Op.Mul,
                       dest,
@@ -334,7 +338,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,bo);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), bo, dest);
           case "DIV":
               bo = new BinaryOperator(BinaryOperator.Op.Div,
                       dest,
@@ -342,7 +346,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,bo);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), bo, dest);
           case "GE":
               co = new CompareInst(
                       dest,
@@ -351,7 +355,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,co);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), co, dest);
           case "GT":
               co = new CompareInst(dest,
                       CompareInst.Predicate.GT,
@@ -359,7 +363,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,co);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), co, dest);
           case "LE":
               co = new CompareInst(dest,
                       CompareInst.Predicate.LE,
@@ -367,7 +371,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,co);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), co, dest);
           case "LT":
               co = new CompareInst(dest,
                       CompareInst.Predicate.LT,
@@ -375,7 +379,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,co);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), co, dest);
           case "EQ":
               co = new CompareInst(dest,
                       CompareInst.Predicate.EQ,
@@ -383,7 +387,7 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,co);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), co, dest);
           case "NE":
               co = new CompareInst(dest,
                       CompareInst.Predicate.NE,
@@ -391,11 +395,11 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       (LocalVar)rhs.getVal() );
               rhs.getEnd().setNext(0,co);
               lhs.getEnd().setNext(0, rhs.getStart());
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), co, dest);
           case "LOGIC_NOT":
               uo = new UnaryNotInst(dest,(LocalVar)lhs.getVal());
               lhs.getEnd().setNext(0, uo);
-              return new InstPair(lhs.getStart(),dest);
+              return new InstPair(lhs.getStart(), uo, dest);
           default:
               return new InstPair(new NopInst());
       }
@@ -407,11 +411,12 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   @Override
   public InstPair visit(ArrayAccess access)
   {
-    var baseType = access.getBase().getType();
+    var arrayType = (ArrayType) access.getBase().getType();
+    var baseType = arrayType.getBase(); //get the array's type
     var tempLocalVar = mCurrentFunction.getTempVar(baseType);
     var index = access.getIndex().accept(this);
     var addressVar = mCurrentFunction.getTempAddressVar(baseType);
-    var addressInst = new AddressAt(addressVar, access.getBase(), tempLocalVar);
+    var addressInst = new AddressAt(addressVar, access.getBase(), (LocalVar) index.getVal());
     var load = new LoadInst(tempLocalVar, addressVar);
     connect(index, addressInst);
     connect(addressInst, load);
