@@ -446,24 +446,30 @@ public final class ASTLower implements NodeVisitor<InstPair> {
    * Lower a Return.
    */
   @Override
-  public InstPair visit(Return ret) {
-    return null;
+  public InstPair visit(Return ret)
+  {
+    var index = ret.getValue().accept(this);
+    var retInst =  new ReturnInst((LocalVar) index.getVal());
+    connect(index, retInst);
+    return new InstPair(index.getStart(), retInst);
   }
 
   /**
    * Break Node
    */
   @Override
-  public InstPair visit(Break brk) {
-    return null;
+  public InstPair visit(Break brk)
+  {
+    return new InstPair(loopExit, new NopInst());
   }
 
   /**
    * Continue Node
    */
   @Override
-  public InstPair visit(Continue cont) {
-    return null;
+  public InstPair visit(Continue cont)
+  {
+    return new InstPair(loopHead, new NopInst());
   }
 
   /**
@@ -484,11 +490,18 @@ public final class ASTLower implements NodeVisitor<InstPair> {
     return new InstPair(cond.getStart(), nop);
   }
 
+  private Instruction loopHead;
+  private Instruction loopExit;
+
   /**
    * Implement loops.
    */
   @Override
-  public InstPair visit(Loop loop) {
-    return null;
+  public InstPair visit(Loop loop)
+  {
+    loopHead = new NopInst();
+    var body = loop.getBody().accept(this);
+    connect(body.getEnd(), body.getStart());
+    return new InstPair(loopHead, loopExit);
   }
 }
