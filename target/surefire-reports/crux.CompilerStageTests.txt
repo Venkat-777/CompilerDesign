@@ -1,99 +1,18 @@
 -------------------------------------------------------------------------------
 Test set: crux.CompilerStageTests
 -------------------------------------------------------------------------------
-Tests run: 50, Failures: 3, Errors: 14, Skipped: 0, Time elapsed: 1.174 s <<< FAILURE! - in crux.CompilerStageTests
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.011 s  <<< FAILURE!
+Tests run: 50, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.307 s <<< FAILURE! - in crux.CompilerStageTests
+crux.CompilerStageTests.emulateIR  Time elapsed: 0.003 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: IR for program crux/stages/ir/test44.crx differs from expected output. ==> expected: <5555555> but was: <555555>
+	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:229)
+
+crux.CompilerStageTests.emulateIR  Time elapsed: 0.002 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: 
-IR for program crux/stages/ir/test18.crx differs from expected output. ==> expected: <0
-1
-2> but was: <>
+IR for program crux/stages/ir/test46.crx differs from expected output. ==> expected: <999999
+199199199
+299299299
+399399399
+499499499
+00> but was: <>
 	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:229)
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.007 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because "currentInst" is null
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because "currentInst" is null
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.006 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.005 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.007 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.012 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: IR for program crux/stages/ir/test36.crx differs from expected output. ==> expected: <Hello World> but was: <>
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:229)
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.009 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because "currentInst" is null
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because "currentInst" is null
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.006 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.005 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because the return value of "crux.ir.InstPair.getEnd()" is null
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because the return value of "crux.ir.InstPair.getEnd()" is null
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.007 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because the return value of "crux.ir.InstPair.getEnd()" is null
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because the return value of "crux.ir.InstPair.getEnd()" is null
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.006 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.008 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-IR for program crux/stages/ir/test48.crx differs from expected output. ==> expected: <1
-1
-2
-3
-5
-8
-13
-21
-34
-55> but was: <>
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:229)
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because "start" is null
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException: Cannot invoke "crux.ir.Instruction.setNext(int, crux.ir.Instruction)" because "start" is null
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.009 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:222)
-Caused by: java.lang.NullPointerException
 

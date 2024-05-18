@@ -331,24 +331,24 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       dest,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,bo);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, bo);
               return new InstPair(lhs.getStart(), bo, dest);
-          case "MUL":
+          case "MULT":
               bo = new BinaryOperator(BinaryOperator.Op.Mul,
                       dest,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,bo);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, bo);
               return new InstPair(lhs.getStart(), bo, dest);
           case "DIV":
               bo = new BinaryOperator(BinaryOperator.Op.Div,
                       dest,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,bo);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, bo);
               return new InstPair(lhs.getStart(), bo, dest);
           case "GE":
               co = new CompareInst(
@@ -356,53 +356,79 @@ public final class ASTLower implements NodeVisitor<InstPair> {
                       CompareInst.Predicate.GE,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,co);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, co);
               return new InstPair(lhs.getStart(), co, dest);
           case "GT":
               co = new CompareInst(dest,
                       CompareInst.Predicate.GT,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,co);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, co);
               return new InstPair(lhs.getStart(), co, dest);
           case "LE":
               co = new CompareInst(dest,
                       CompareInst.Predicate.LE,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,co);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, co);
               return new InstPair(lhs.getStart(), co, dest);
           case "LT":
               co = new CompareInst(dest,
                       CompareInst.Predicate.LT,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,co);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, co);
               return new InstPair(lhs.getStart(), co, dest);
           case "EQ":
               co = new CompareInst(dest,
                       CompareInst.Predicate.EQ,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,co);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, co);
               return new InstPair(lhs.getStart(), co, dest);
           case "NE":
               co = new CompareInst(dest,
                       CompareInst.Predicate.NE,
                       (LocalVar)lhs.getVal(),
                       (LocalVar)rhs.getVal() );
-              rhs.getEnd().setNext(0,co);
-              lhs.getEnd().setNext(0, rhs.getStart());
+              connect(lhs, rhs);
+              connect(rhs, co);
               return new InstPair(lhs.getStart(), co, dest);
           case "LOGIC_NOT":
               uo = new UnaryNotInst(dest,(LocalVar)lhs.getVal());
-              lhs.getEnd().setNext(0, uo);
+              connect(lhs, uo);
               return new InstPair(lhs.getStart(), uo, dest);
+          case "LOGIC_OR":
+              var jumpOr = new JumpInst((LocalVar) lhs.getVal()); //predicate
+              connect(lhs, jumpOr);
+              jumpOr.setNext(0, rhs.getStart());
+              var sourceOr = BooleanConstant.get(mCurrentProgram, true);
+              var copyTrueOr = new CopyInst(dest, sourceOr);
+              jumpOr.setNext(1, copyTrueOr);
+              var copyFalseOr = new CopyInst(dest, rhs.getVal());
+              connect(rhs, copyFalseOr);
+              var nopOr = new NopInst();
+              connect(copyTrueOr, nopOr);
+              connect(copyFalseOr, nopOr);
+              return new InstPair(lhs.getStart(), nopOr, dest);
+          case "LOGIC_AND":
+              var jumpAnd = new JumpInst((LocalVar) lhs.getVal());
+              connect(lhs, jumpAnd);
+              jumpAnd.setNext(1, rhs.getStart());
+              var sourceAnd = BooleanConstant.get(mCurrentProgram, false);
+              var copyFalseAnd = new CopyInst(dest, sourceAnd);
+              jumpAnd.setNext(0, copyFalseAnd);
+              var copyTrueAnd = new CopyInst(dest, rhs.getVal());
+              connect(rhs, copyTrueAnd);
+              var nopAnd = new NopInst();
+              connect(copyTrueAnd, nopAnd);
+              connect(copyFalseAnd, nopAnd);
+              return new InstPair(lhs.getStart(), nopAnd, dest);
           default:
               return new InstPair(new NopInst());
       }
@@ -509,8 +535,14 @@ public final class ASTLower implements NodeVisitor<InstPair> {
   public InstPair visit(Loop loop)
   {
     loopHead = new NopInst();
+    loopExit = new NopInst();
     var body = loop.getBody().accept(this);
-    connect(body.getEnd(), body.getStart());
-    return new InstPair(loopHead, loopExit);
+    connect(loopHead, body);
+    connect(body, body);
+    var prevHead = loopHead;
+    var prevExit = loopExit;
+    loopHead = new NopInst();
+    loopExit = new NopInst();
+    return new InstPair(prevHead, prevExit);
   }
 }
