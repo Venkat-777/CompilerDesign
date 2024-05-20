@@ -1,18 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: crux.CompilerStageTests
 -------------------------------------------------------------------------------
-Tests run: 50, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.307 s <<< FAILURE! - in crux.CompilerStageTests
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.003 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: IR for program crux/stages/ir/test44.crx differs from expected output. ==> expected: <5555555> but was: <555555>
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:229)
-
-crux.CompilerStageTests.emulateIR  Time elapsed: 0.002 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-IR for program crux/stages/ir/test46.crx differs from expected output. ==> expected: <999999
-199199199
-299299299
-399399399
-499499499
-00> but was: <>
-	at crux.CompilerStageTests.lambda$emulateIR$7(CompilerStageTests.java:229)
-
+Tests run: 50, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.242 s - in crux.CompilerStageTests
