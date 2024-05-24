@@ -22,13 +22,44 @@ public final class CodeGen extends InstVisitor {
     out = new CodePrinter("a.s");
   }
 
+  private HashMap<Variable, Integer> varIndexMap;
+  private int varIndex;
+
   /**
    * It should allocate space for globals call genCode for each Function
    */
-  public void genCode() {
+  public void genCode()
+  {
     //TODO
+    for (Iterator<GlobalDecl> glob_it = p.getGlobals(); glob_it.hasNext();)
+    {
+      GlobalDecl g = glob_it.next();
+      var name = g.getSymbol().getName();
+      var size = g.getNumElement().getValue() * 8 + ""; //multiply by 8
+      out.printCode(".comm " + name + ", " + size + ", 8");
+    }
+
+    int count[] = new int[1];
+    for (Iterator<Function> func_it = p.getFunctions(); func_it.hasNext();)
+    {
+      Function f = func_it.next();
+      genCode(f, count);
+    }
     
     out.close();
+  }
+
+  private void genCode(Function f, int count[])
+  {
+    f.assignLabels(count);
+
+    out.printCode(".globl " + f.getName());
+    out.printLabel(f.getName() + ":");
+
+    var numslots = f.getNumTempVars() + f.getNumTempAddressVars();
+    out.printCode("enter $(8 * " + numslots + "), $0");
+
+
   }
 
   public void visit(AddressAt i) {}
@@ -49,7 +80,12 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(ReturnInst i) {}
 
-  public void visit(CallInst i) {}
+  public void visit(CallInst i)
+  {
+
+
+    out.printCode("call " + i.getCallee().getName());
+  }
 
   public void visit(UnaryNotInst i) {}
 }
