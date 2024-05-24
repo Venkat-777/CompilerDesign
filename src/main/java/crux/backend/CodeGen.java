@@ -25,6 +25,20 @@ public final class CodeGen extends InstVisitor {
   private HashMap<Variable, Integer> varIndexMap;
   private int varIndex;
 
+  public int getVarIndex(Variable var) //returns Integer value
+  {
+      return varIndexMap.get(var);
+  }
+
+  public void storeVar(Variable var) //stores to bottom of map
+  {
+    varIndexMap.put(var, varIndexMap.size());
+  }
+
+  private String registers[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+
+
+
   /**
    * It should allocate space for globals call genCode for each Function
    */
