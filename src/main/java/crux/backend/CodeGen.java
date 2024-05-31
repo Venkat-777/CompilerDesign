@@ -22,10 +22,10 @@ public final class CodeGen extends InstVisitor {
     out = new CodePrinter("a.s");
   }
 
-  private HashMap<Variable, Integer> varIndexMap;
+  private HashMap<Variable, Integer> varIndexMap = new HashMap<>();
   private int varIndex;
 
-  public int getVarIndex(Variable var) //returns Integer value
+  public Integer getVarIndex(Variable var) //returns Integer value
   {
       return varIndexMap.get(var);
   }
@@ -37,7 +37,22 @@ public final class CodeGen extends InstVisitor {
 
   private String registers[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
 
+  public void printVarToReg(String var, int offset, String register)
+  {
+    String s = String.format("movq -%d(%s), %s", offset, var, register);
+    out.printCode(s);
+  }
 
+  public void printIntToReg(Integer Int, String register)
+  {
+    out.printCode("movq" + ", ");
+  }
+
+  public void printRegToVar(String register, String var, int offset)
+  {
+    String s = String.format("movq %s, -%d(%s)", register, offset, var);
+    out.printCode(s);
+  }
 
   /**
    * It should allocate space for globals call genCode for each Function
@@ -73,7 +88,18 @@ public final class CodeGen extends InstVisitor {
     var numslots = f.getNumTempVars() + f.getNumTempAddressVars();
     out.printCode("enter $(8 * " + numslots + "), $0");
 
+    for (int i = 1; i <= f.getArguments().size(); ++i)
+    {
+      var temp = f.getTempVar(f.getArguments().get(i-1).getType());
+      Integer offset = i*8;
+      varIndexMap.put(temp, offset); //offset is stored as positive
+      printRegToVar(registers[i-1], "%rbp", i*8);
+    }
 
+    for (int i = 1; i <= f.getArguments().size(); ++i)
+    {
+
+    }
   }
 
   public void visit(AddressAt i) {}
@@ -96,8 +122,10 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(CallInst i)
   {
-
-
+    for (int j = 1; j <= varIndexMap.size(); ++j)
+    {
+      printVarToReg("%rbp", j*8, registers[j]);
+    }
     out.printCode("call " + i.getCallee().getName());
   }
 
