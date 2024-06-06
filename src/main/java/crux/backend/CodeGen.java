@@ -1,6 +1,7 @@
 package crux.backend;
 
 import crux.ast.SymbolTable.Symbol;
+import crux.ast.types.IntType;
 import crux.ir.*;
 import crux.ir.insts.*;
 import crux.printing.IRValueFormatter;
@@ -13,6 +14,13 @@ import java.util.*;
 public final class CodeGen extends InstVisitor {
   private final Program p;
   private final CodePrinter out;
+
+  private final IRValueFormatter irFormat = new IRValueFormatter();
+  private void printInstructionInfo(Instruction i)
+  {
+    var info = String.format("/* %s */", i.format(irFormat));
+    out.printCode(info);
+  }
 
   public CodeGen(Program p) {
     this.p = p;
@@ -45,7 +53,7 @@ public final class CodeGen extends InstVisitor {
 
   public void printIntToReg(Integer Int, String register)
   {
-    out.printCode("movq" + ", ");
+    out.printCode("movq $" + Int + ", " + register);
   }
 
   public void printRegToVar(String register, String var, int offset)
@@ -96,29 +104,77 @@ public final class CodeGen extends InstVisitor {
       printRegToVar(registers[i-1], "%rbp", i*8);
     }
 
-    for (int i = 1; i <= f.getArguments().size(); ++i)
+    // visit function body and generate code
+    var currentInst = f.getStart();
+    while(currentInst != null)
     {
-
+      currentInst.accept(this);
+      currentInst = currentInst.getNext(0); //get next Inst
     }
+
+    out.printCode("leave");
+    out.printCode("ret");
   }
 
-  public void visit(AddressAt i) {}
+  public void visit(AddressAt i)
+  {
+    out.printCode("reached AddressAt");
+  }
 
-  public void visit(BinaryOperator i) {}
+  public void visit(BinaryOperator i)
+  {
+    out.printCode("reached BinaryOperator");
+  }
 
-  public void visit(CompareInst i) {}
+  public void visit(CompareInst i)
+  {
+    out.printCode("reached cmpInst");
+  }
 
-  public void visit(CopyInst i) {}
+  public void visit(CopyInst i)
+  {
+    out.printCode("reached copyInst");
 
-  public void visit(JumpInst i) {}
+    var iType = i.getSrcValue().getType();
+    if (iType instanceof IntType)
+    {
+      var temp = (IntegerConstant) i.getSrcValue();
+      out.printCode(String.valueOf(temp.getValue()));
+    } else //is BoolType
+    {
+      var temp = (BooleanConstant) i.getSrcValue();
+      out.printCode(String.valueOf(temp.getValue()));
+    }
 
-  public void visit(LoadInst i) {}
+    int src = 0;
+    String dest = "%r10";
+    printIntToReg(src, dest);
+  }
 
-  public void visit(NopInst i) {}
+  public void visit(JumpInst i)
+  {
+    out.printCode("reached jumpInst");
+  }
 
-  public void visit(StoreInst i) {}
+  public void visit(LoadInst i)
+  {
+    out.printCode("reached LoadInst");
+  }
 
-  public void visit(ReturnInst i) {}
+  public void visit(NopInst i)
+  {
+    out.printCode("reached nopInst");
+  }
+
+  public void visit(StoreInst i)
+  {
+    out.printCode("reached storeInst");
+  }
+
+  public void visit(ReturnInst i)
+  {
+    out.printCode("reached returnInst");
+  }
 
   public void visit(CallInst i)
   {
@@ -129,5 +185,8 @@ public final class CodeGen extends InstVisitor {
     out.printCode("call " + i.getCallee().getName());
   }
 
-  public void visit(UnaryNotInst i) {}
+  public void visit(UnaryNotInst i)
+  {
+    out.printCode("reached UnaryNotInst");
+  }
 }

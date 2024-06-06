@@ -6,5 +6,5 @@ int foo(int x)
 }
 
 void main() {
-
+    int y;
 }
