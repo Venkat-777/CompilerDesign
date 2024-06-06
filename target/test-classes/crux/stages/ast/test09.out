@@ -1,8 +1,0 @@
-
-rec(a) {
-  printInt(a);
-}
-main() {
-  rec(41);
-}
-

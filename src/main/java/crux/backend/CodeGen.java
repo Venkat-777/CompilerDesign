@@ -1,6 +1,7 @@
 package crux.backend;
 
 import crux.ast.SymbolTable.Symbol;
+import crux.ast.types.BoolType;
 import crux.ast.types.IntType;
 import crux.ir.*;
 import crux.ir.insts.*;
@@ -62,6 +63,7 @@ public final class CodeGen extends InstVisitor {
     out.printCode(s);
   }
 
+
   /**
    * It should allocate space for globals call genCode for each Function
    */
@@ -118,75 +120,88 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(AddressAt i)
   {
-    out.printCode("reached AddressAt");
+    printInstructionInfo(i);
   }
 
   public void visit(BinaryOperator i)
   {
-    out.printCode("reached BinaryOperator");
+    printInstructionInfo(i);
+
+    var left = i.getLeftOperand().getName();
+    var right = i.getLeftOperand().getName();
+
+    printVarToReg("", 0, "%r10"); //add right operand to r10
+
+    if (i.getOperator() == BinaryOperator.Op.Add)
+    {
+      out.printCode("addq " + "%r10");
+    }
   }
 
   public void visit(CompareInst i)
   {
-    out.printCode("reached cmpInst");
+    printInstructionInfo(i);
   }
 
   public void visit(CopyInst i)
   {
-    out.printCode("reached copyInst");
+    printInstructionInfo(i);
+
+    varIndexMap.put(i.getDstVar(), varIndex);
+    varIndex++;
 
     var iType = i.getSrcValue().getType();
+
+    String dest = "%r10";
     if (iType instanceof IntType)
     {
-      var temp = (IntegerConstant) i.getSrcValue();
-      out.printCode(String.valueOf(temp.getValue()));
-    } else //is BoolType
-    {
-      var temp = (BooleanConstant) i.getSrcValue();
-      out.printCode(String.valueOf(temp.getValue()));
+      var iCast = (IntegerConstant) i.getSrcValue();
+      int src = (int) iCast.getValue();
+      printIntToReg(src, dest); //$x to %r10
+    } else if (iType instanceof BoolType) {
+      var iCast = (BooleanConstant) i.getSrcValue();
+      int src = iCast.getValue() ? 1 : 0;
+      printIntToReg(src, dest); //$x to %r10
     }
 
-    int src = 0;
-    String dest = "%r10";
-    printIntToReg(src, dest);
+    printRegToVar("%r10", "%rbp", varIndex*8); //%r10 to LocalVar
   }
 
   public void visit(JumpInst i)
   {
-    out.printCode("reached jumpInst");
+    printInstructionInfo(i);
   }
 
   public void visit(LoadInst i)
   {
-    out.printCode("reached LoadInst");
+    printInstructionInfo(i);
   }
 
   public void visit(NopInst i)
   {
-    out.printCode("reached nopInst");
+    printInstructionInfo(i);
   }
 
   public void visit(StoreInst i)
   {
-    out.printCode("reached storeInst");
+    printInstructionInfo(i);
   }
 
   public void visit(ReturnInst i)
   {
-    out.printCode("reached returnInst");
+    printInstructionInfo(i);
   }
 
   public void visit(CallInst i)
   {
-    for (int j = 1; j <= varIndexMap.size(); ++j)
-    {
-      printVarToReg("%rbp", j*8, registers[j]);
-    }
+    printInstructionInfo(i);
+
+    printVarToReg("%rbp", varIndex*8, "%rdi");
     out.printCode("call " + i.getCallee().getName());
   }
 
   public void visit(UnaryNotInst i)
   {
-    out.printCode("reached UnaryNotInst");
+    printInstructionInfo(i);
   }
 }

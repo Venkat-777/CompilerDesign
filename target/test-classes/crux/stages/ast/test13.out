@@ -1,8 +1,0 @@
-
-myInt() {
-  return readInt();
-}
-main() {
-  printInt(myInt());
-}
-

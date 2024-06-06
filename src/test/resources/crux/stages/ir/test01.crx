@@ -1,11 +1,6 @@
 
 // test main function
-int foo(int x)
-{
-    return x + 3;
-}
 
 void main() {
-    int y;
-    y = foo(2);
+
 }

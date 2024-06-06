@@ -1,7 +1,0 @@
-
-i;
-main() {
-  i = 10;
-  printInt(i);
-}
-

@@ -1,8 +1,0 @@
-program
-  declList
-    decl
-      functionDefn
-        type
-        paramList
-        stmtBlock
-          stmtList

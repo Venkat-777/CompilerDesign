@@ -1,7 +1,0 @@
-
-addi;
-main() {
-  addi = readInt();
-  printInt(addi);
-}
-
