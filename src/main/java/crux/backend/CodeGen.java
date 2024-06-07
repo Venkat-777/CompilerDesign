@@ -178,6 +178,8 @@ public final class CodeGen extends InstVisitor {
     int leftIndex = varIndexMap.get(left);
     int rightIndex = varIndexMap.get(right);
 
+    printVarToReg("%rbp", (rightIndex)*8, "%r10"); //add right operand to r10
+
     if (!varIndexMap.containsKey(src))
     {
       varIndex++;
@@ -185,17 +187,15 @@ public final class CodeGen extends InstVisitor {
     }
     int srcIndex = varIndexMap.get(src);
 
-    printVarToReg("%rbp", (rightIndex+1)*8, "%r10"); //add right operand to r10
-
     if (i.getOperator() == BinaryOperator.Op.Add)
     {
-      out.printCode("addq -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
+      out.printCode("addq -" + (leftIndex)*8 + "(%rbp)" + ", %r10");
     } else if (i.getOperator() == BinaryOperator.Op.Sub)
     {
-      out.printCode("subq -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
+      out.printCode("subq -" + (leftIndex)*8 + "(%rbp)" + ", %r10");
     } else if (i.getOperator() == BinaryOperator.Op.Mul)
     {
-      out.printCode("imul -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
+      out.printCode("imul -" + (leftIndex)*8 + "(%rbp)" + ", %r10");
     } else
     {
       out.printCode("movq "+leftIndex+"(%rbp), %rax");
