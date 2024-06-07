@@ -4,6 +4,7 @@ import crux.ast.SymbolTable.Symbol;
 import crux.ast.types.BoolType;
 import crux.ast.types.FuncType;
 import crux.ast.types.IntType;
+import crux.ast.types.VoidType;
 import crux.ir.*;
 import crux.ir.insts.*;
 import crux.printing.IRValueFormatter;
@@ -31,6 +32,11 @@ public final class CodeGen extends InstVisitor {
 
     out = new CodePrinter("a.s");
   }
+
+  public HashMap<Instruction, String> labelMap = new HashMap<>();
+
+  public Stack<Instruction> tovisit = new Stack<>();
+  public HashSet<Instruction> visitedLabels = new HashSet<>();
 
   private HashMap<Variable, Integer> varIndexMap = new HashMap<>();
   private int varIndex;
@@ -91,7 +97,7 @@ public final class CodeGen extends InstVisitor {
 
   private void genCode(Function f, int count[])
   {
-    f.assignLabels(count);
+    labelMap = f.assignLabels(count);
 
     out.printCode(".globl " + f.getName());
     out.printLabel(f.getName() + ":");
@@ -109,11 +115,31 @@ public final class CodeGen extends InstVisitor {
     }
 
     // visit function body and generate code
-    var currentInst = f.getStart();
-    while(currentInst != null)
+    tovisit.push(f.getStart());
+    while (!tovisit.isEmpty())
     {
-      currentInst.accept(this);
-      currentInst = currentInst.getNext(0); //get next Inst
+      var currentInst = tovisit.pop();
+      if (visitedLabels.contains(currentInst))
+      {
+        currentInst.accept(this);
+      }
+      else
+      {
+        if (labelMap.containsKey(currentInst)) //inst is a jump target
+        {
+          out.printLabel(labelMap.get(currentInst) + ":");
+        }
+        if (currentInst != null)
+        {
+          currentInst.accept(this);
+          visitedLabels.add(currentInst);
+          if (currentInst.getNext(1) != null)
+          {
+            tovisit.push(currentInst.getNext(1));
+          }
+          tovisit.push(currentInst.getNext(0));
+        }
+      }
     }
 
     out.printCode("leave");
@@ -170,6 +196,12 @@ public final class CodeGen extends InstVisitor {
     } else if (i.getOperator() == BinaryOperator.Op.Mul)
     {
       out.printCode("imul -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
+    } else
+    {
+      out.printCode("movq "+leftIndex+"(%rbp), %rax");
+      out.printCode("cqto");
+      out.printCode("idivq " + rightIndex + "(%rbp)");
+      out.printCode("movq %rax, "+ srcIndex+"(%rbp)");
     }
 
     printRegToVar("%r10", "%rbp", srcIndex*8);
@@ -179,6 +211,18 @@ public final class CodeGen extends InstVisitor {
   {
     printInstructionInfo(i);
 
+    var dest = i.getDst();
+    var left = i.getLeftOperand();
+    var right = i.getRightOperand();
+    int dstslot = varIndexMap.get(dest);
+    int lhsslot = varIndexMap.get(left);
+    int rhsslot = varIndexMap.get(right);
+    out.printCode("movq $0, %rax");
+    out.printCode("movq $1, %r10");
+    printVarToReg("%rbp",lhsslot*8,"%r10");
+    out.printCode("-"+rhsslot*8+"(%rbp), %r11");
+    out.printCode("cmovg %r10, %rax");
+    printRegToVar("%rax","%rbp",dstslot*8);
 
   }
 
@@ -223,6 +267,21 @@ public final class CodeGen extends InstVisitor {
   {
     printInstructionInfo(i);
 
+    var predicate = i.getPredicate();
+    var offset = varIndexMap.get(predicate);
+    printVarToReg("%rbp", offset*8, "%r10");
+
+    out.printCode("cmp $1, %r10");
+
+    var thenBlock = i.getNext(1);
+    var elseBlock = i.getNext(0);
+
+    out.printCode("je " + labelMap.get(thenBlock));
+
+    if (labelMap.get(elseBlock) != null)
+    {
+      out.printCode("jmp " + labelMap.get(elseBlock));
+    }
 
   }
 
@@ -288,8 +347,15 @@ public final class CodeGen extends InstVisitor {
       tempIndex--;
     }
 
-    //printVarToReg("%rbp", varIndex*8, "%rdi");
     out.printCode("call " + i.getCallee().getName());
+
+    if (!(i.getCallee().getType() instanceof VoidType))
+    {
+      varIndex++;
+      varIndexMap.put(i.getDst(), varIndex);
+      printRegToVar("%rax", "%rbp", varIndex*8);
+    }
+
   }
 
   public void visit(UnaryNotInst i)
