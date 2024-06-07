@@ -97,7 +97,7 @@ public final class CodeGen extends InstVisitor {
     out.printLabel(f.getName() + ":");
 
     var numslots = f.getNumTempVars() + f.getNumTempAddressVars();
-    numslots = (numslots + 1) & ~1; //round to nearest even
+    numslots = (numslots + 1) & ~1; //rounds to nearest even
     out.printCode("enter $(8 * " + numslots + "), $0");
 
     for (int i = 1; i <= f.getArguments().size(); ++i)
@@ -131,7 +131,7 @@ public final class CodeGen extends InstVisitor {
     if (i.getOffset() != null)
     {
       var offset = varIndexMap.get(i.getOffset());
-      printIntToReg(offset, "%r10");
+      printVarToReg("%rbp", offset*8, "%r10");
       out.printCode("imulq $8, %r10");
       out.printCode("addq %r10, %r11");
     }
