@@ -274,9 +274,11 @@ public final class CodeGen extends InstVisitor {
       var srcVar = i.getSrcValue();
       var srcOffset = varIndexMap.get(srcVar);
       printVarToReg("%rbp", srcOffset*8, "%r10");
-      varIndex++;
-      varIndexMap.put(i.getDstVar(), varIndex);
-
+      if (!varIndexMap.containsKey(i.getDstVar()))
+      {
+        varIndex++;
+        varIndexMap.put(i.getDstVar(), varIndex);
+      }
     } else //src is a constant
     {
       var iType = i.getSrcValue().getType();
@@ -284,19 +286,24 @@ public final class CodeGen extends InstVisitor {
       {
         var iCast = (IntegerConstant) i.getSrcValue();
         int src = (int) iCast.getValue();
-
-        varIndex++;
-        varIndexMap.put(i.getDstVar(), varIndex);
+        if (!varIndexMap.containsKey(i.getDstVar()))
+        {
+          varIndex++;
+          varIndexMap.put(i.getDstVar(), varIndex);
+        }
         printIntToReg(src, dest); //$x to %r10
       } else if (iType instanceof BoolType) {
         var iCast = (BooleanConstant) i.getSrcValue();
         int src = iCast.getValue() ? 1 : 0;
-        varIndex++;
-        varIndexMap.put(i.getDstVar(), varIndex);
+        if (!varIndexMap.containsKey(i.getDstVar()))
+        {
+          varIndex++;
+          varIndexMap.put(i.getDstVar(), varIndex);
+        }
         printIntToReg(src, dest); //$x to %r10
       }
     }
-    printRegToVar("%r10", "%rbp", varIndex*8); //%r10 to LocalVar
+    printRegToVar("%r10", "%rbp", varIndexMap.get(i.getDstVar())*8); //%r10 to LocalVar
   }
 
   public void visit(JumpInst i)
@@ -375,21 +382,22 @@ public final class CodeGen extends InstVisitor {
     printInstructionInfo(i);
 
     int numParams = i.getParams().size();
-    int tempIndex = varIndex;
 
     for (int j = numParams; j > 0; j--)
     {
-      printVarToReg("%rbp", tempIndex*8, registers[j-1]);
-      tempIndex--;
+      printVarToReg("%rbp", varIndexMap.get(i.getParams().get(j-1))*8, registers[j-1]);
     }
 
     out.printCode("call " + i.getCallee().getName());
 
     if (!(i.getCallee().getType() instanceof VoidType))
     {
-      varIndex++;
-      varIndexMap.put(i.getDst(), varIndex);
-      printRegToVar("%rax", "%rbp", varIndex*8);
+      if (!varIndexMap.containsKey(i.getDst()))
+      {
+        varIndex++;
+        varIndexMap.put(i.getDst(), varIndex);
+      }
+      printRegToVar("%rax", "%rbp", varIndexMap.get(i.getDst())*8);
     }
 
   }
