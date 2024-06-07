@@ -122,6 +122,7 @@ public final class CodeGen extends InstVisitor {
       if (visitedLabels.contains(currentInst))
       {
         currentInst.accept(this);
+        out.printCode("jmp " + labelMap.get(currentInst));
       }
       else
       {
@@ -137,13 +138,18 @@ public final class CodeGen extends InstVisitor {
           {
             tovisit.push(currentInst.getNext(1));
           }
-          tovisit.push(currentInst.getNext(0));
+          if (currentInst.getNext(0) != null)
+          {
+            tovisit.push(currentInst.getNext(0));
+          }
+          else
+          {
+            out.printCode("leave");
+            out.printCode("ret");
+          }
         }
       }
     }
-
-    out.printCode("leave");
-    out.printCode("ret");
   }
 
   public void visit(AddressAt i)
@@ -178,7 +184,7 @@ public final class CodeGen extends InstVisitor {
     int leftIndex = varIndexMap.get(left);
     int rightIndex = varIndexMap.get(right);
 
-    printVarToReg("%rbp", (rightIndex)*8, "%r10"); //add right operand to r10
+    printVarToReg("%rbp", (leftIndex)*8, "%r10"); //add right operand to r10
 
     if (!varIndexMap.containsKey(src))
     {
@@ -189,13 +195,13 @@ public final class CodeGen extends InstVisitor {
 
     if (i.getOperator() == BinaryOperator.Op.Add)
     {
-      out.printCode("addq -" + (leftIndex)*8 + "(%rbp)" + ", %r10");
+      out.printCode("addq -" + (rightIndex)*8 + "(%rbp)" + ", %r10");
     } else if (i.getOperator() == BinaryOperator.Op.Sub)
     {
-      out.printCode("subq -" + (leftIndex)*8 + "(%rbp)" + ", %r10");
+      out.printCode("subq -" + (rightIndex)*8 + "(%rbp)" + ", %r10");
     } else if (i.getOperator() == BinaryOperator.Op.Mul)
     {
-      out.printCode("imul -" + (leftIndex)*8 + "(%rbp)" + ", %r10");
+      out.printCode("imul -" + (rightIndex)*8 + "(%rbp)" + ", %r10");
     } else
     {
       out.printCode("movq "+leftIndex+"(%rbp), %rax");
