@@ -103,9 +103,9 @@ public final class CodeGen extends InstVisitor {
     for (int i = 1; i <= f.getArguments().size(); ++i)
     {
       var temp = f.getTempVar(f.getArguments().get(i-1).getType());
-      Integer offset = i*8;
-      varIndexMap.put(temp, offset); //offset is stored as positive
-      printRegToVar(registers[i-1], "%rbp", i*8);
+      varIndex++;
+      varIndexMap.put(temp, varIndex); //offset is stored as positive
+      printRegToVar(registers[i-1], "%rbp", varIndex*8);
     }
 
     // visit function body and generate code
@@ -123,6 +123,23 @@ public final class CodeGen extends InstVisitor {
   public void visit(AddressAt i)
   {
     printInstructionInfo(i);
+    out.printCode("/* AddressAt */");
+
+    var varName = i.getBase().getName();
+    out.printCode("movq " + varName + "@GOTPCREL(%rip), %r11");
+
+    if (i.getOffset() != null)
+    {
+      var offset = varIndexMap.get(i.getOffset());
+      printIntToReg(offset, "%r10");
+      out.printCode("imulq $8, %r10");
+      out.printCode("addq %r10, %r11");
+    }
+
+    varIndex++;
+    varIndexMap.put(i.getDst(), varIndex);
+    //move result %r11 to destination
+    printRegToVar("%r11", "%rbp", varIndex*8);
   }
 
   public void visit(BinaryOperator i)
@@ -147,6 +164,12 @@ public final class CodeGen extends InstVisitor {
     if (i.getOperator() == BinaryOperator.Op.Add)
     {
       out.printCode("addq -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
+    } else if (i.getOperator() == BinaryOperator.Op.Sub)
+    {
+      out.printCode("subq -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
+    } else if (i.getOperator() == BinaryOperator.Op.Mul)
+    {
+      out.printCode("imul -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
     }
 
     printRegToVar("%r10", "%rbp", srcIndex*8);
@@ -155,68 +178,128 @@ public final class CodeGen extends InstVisitor {
   public void visit(CompareInst i)
   {
     printInstructionInfo(i);
+
+
   }
 
   public void visit(CopyInst i)
   {
     printInstructionInfo(i);
+    out.printCode("/* CopyInst */");
 
-    var iType = i.getSrcValue().getType();
+    var dest = "%r10";
 
-    String dest = "%r10";
-    if (iType instanceof IntType)
+    if (i.getSrcValue() instanceof LocalVar) //src is a LocalVar
     {
-      var iCast = (IntegerConstant) i.getSrcValue();
-      int src = (int) iCast.getValue();
-      varIndexMap.put(i.getDstVar(), src);
+      var srcVar = i.getSrcValue();
+      var srcOffset = varIndexMap.get(srcVar);
+      printVarToReg("%rbp", srcOffset*8, "%r10");
       varIndex++;
-      printIntToReg(src, dest); //$x to %r10
-    } else if (iType instanceof BoolType) {
-      var iCast = (BooleanConstant) i.getSrcValue();
-      int src = iCast.getValue() ? 1 : 0;
-      varIndexMap.put(i.getDstVar(), src);
-      varIndex++;
-      printIntToReg(src, dest); //$x to %r10
-    }
+      varIndexMap.put(i.getDstVar(), varIndex);
 
+    } else //src is a constant
+    {
+      var iType = i.getSrcValue().getType();
+      if (iType instanceof IntType)
+      {
+        var iCast = (IntegerConstant) i.getSrcValue();
+        int src = (int) iCast.getValue();
+
+        varIndex++;
+        varIndexMap.put(i.getDstVar(), varIndex);
+        printIntToReg(src, dest); //$x to %r10
+      } else if (iType instanceof BoolType) {
+        var iCast = (BooleanConstant) i.getSrcValue();
+        int src = iCast.getValue() ? 1 : 0;
+        varIndex++;
+        varIndexMap.put(i.getDstVar(), varIndex);
+        printIntToReg(src, dest); //$x to %r10
+      }
+    }
     printRegToVar("%r10", "%rbp", varIndex*8); //%r10 to LocalVar
   }
 
   public void visit(JumpInst i)
   {
     printInstructionInfo(i);
+
+
   }
 
   public void visit(LoadInst i)
   {
     printInstructionInfo(i);
+    out.printCode("/* LoadInst */");
+
+    var srcAddress = i.getSrcAddress();
+    var srcOffset = varIndexMap.get(srcAddress);
+    printVarToReg("%rbp", srcOffset*8, "%r10"); //localVar to %r10
+
+    out.printCode("movq 0(%r10), %r11");
+
+    varIndex++;
+    varIndexMap.put(i.getDst(), varIndex);
+    printRegToVar("%r11", "%rbp", varIndex*8);
   }
 
   public void visit(NopInst i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
   }
 
   public void visit(StoreInst i)
   {
     printInstructionInfo(i);
+    out.printCode("/* StoreInst */");
+
+    var srcVar = i.getSrcValue();
+    var srcOffset = varIndexMap.get(srcVar);
+    printVarToReg("%rbp", srcOffset*8, "%r10"); //localVar to %r10
+
+    var destAddress = i.getDestAddress();
+    var destOffset = varIndexMap.get(destAddress);
+    printVarToReg("%rbp", destOffset*8, "%r11"); //destAddress to %r11
+
+    out.printCode("movq %r10, 0(%r11)");
   }
 
   public void visit(ReturnInst i)
   {
     printInstructionInfo(i);
+
+    if (i.getReturnValue() != null)
+    {
+      var localVar = i.getReturnValue();
+      var offset = varIndexMap.get(localVar);
+      printVarToReg("%rbp" , offset*8, "%rax");
+    }
   }
 
   public void visit(CallInst i)
   {
     printInstructionInfo(i);
 
-    printVarToReg("%rbp", varIndex*8, "%rdi");
+    int numParams = i.getParams().size();
+    int tempIndex = varIndex;
+
+    for (int j = numParams; j > 0; j--)
+    {
+      printVarToReg("%rbp", tempIndex*8, registers[j-1]);
+      tempIndex--;
+    }
+
+    //printVarToReg("%rbp", varIndex*8, "%rdi");
     out.printCode("call " + i.getCallee().getName());
   }
 
   public void visit(UnaryNotInst i)
   {
     printInstructionInfo(i);
+
+    var inner = i.getInner();
+    var val = (Value) inner;
+
+    printIntToReg(1, "%r11");
+    out.printCode("subq " + val + ", %r11");
   }
 }

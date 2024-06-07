@@ -1,267 +1,235 @@
 -------------------------------------------------------------------------------
 Test set: crux.CompilerStageTests
 -------------------------------------------------------------------------------
-Tests run: 50, Failures: 25, Errors: 20, Skipped: 0, Time elapsed: 24.712 s <<< FAILURE! - in crux.CompilerStageTests
-crux.CompilerStageTests.codegen  Time elapsed: 1.027 s  <<< FAILURE!
+Tests run: 50, Failures: 12, Errors: 36, Skipped: 0, Time elapsed: 192.816 s <<< FAILURE! - in crux.CompilerStageTests
+crux.CompilerStageTests.codegen  Time elapsed: 0.243 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test02.crx differs from expected output. ==> expected: <42> but was: <1>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.956 s  <<< FAILURE!
+crux.CompilerStageTests.codegen  Time elapsed: 0.226 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test03.crx differs from expected output. ==> expected: <truefalse> but was: <truetrue>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.951 s  <<< FAILURE!
+crux.CompilerStageTests.codegen  Time elapsed: 0.224 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test04.crx differs from expected output. ==> expected: <2> but was: <1>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.941 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test06.crx differs from expected output. ==> expected: <10> but was: <1>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
+crux.CompilerStageTests.codegen  Time elapsed: 0.166 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.009 s  <<< ERROR!
+crux.CompilerStageTests.codegen  Time elapsed: 0.003 s  <<< ERROR!
 java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
 Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
 
-crux.CompilerStageTests.codegen  Time elapsed: 1.109 s  <<< FAILURE!
+crux.CompilerStageTests.codegen  Time elapsed: 0.22 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test08.crx differs from expected output. ==> expected: <5> but was: <1>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 1.002 s  <<< FAILURE!
+crux.CompilerStageTests.codegen  Time elapsed: 0.224 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test09.crx differs from expected output. ==> expected: <41> but was: <1>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.82 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test10.crx differs from expected output. ==> expected: <42> but was: <1>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
+crux.CompilerStageTests.codegen  Time elapsed: 0.159 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.826 s  <<< FAILURE!
+crux.CompilerStageTests.codegen  Time elapsed: 0.22 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: 
 CodeGen for program crux/stages/codegen/test11.crx differs from expected output. ==> expected: <7true
 int?> but was: <1true
 int?>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.819 s  <<< FAILURE!
+crux.CompilerStageTests.codegen  Time elapsed: 0.224 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test12.crx differs from expected output. ==> expected: <1-1> but was: <1>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.941 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test13.crx differs from expected output. ==> expected: <int?7> but was: <int?2911623249920>
+crux.CompilerStageTests.codegen  Time elapsed: 0.222 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test13.crx differs from expected output. ==> expected: <int?7> but was: <int?1996247007232>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.906 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test14.crx differs from expected output. ==> expected: <int?7> but was: <int?1946664828928>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
+crux.CompilerStageTests.codegen  Time elapsed: 0.003 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because "srcOffset" is null
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because "srcOffset" is null
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.761 s  <<< FAILURE!
+crux.CompilerStageTests.codegen  Time elapsed: 0.225 s  <<< FAILURE!
 org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test15.crx differs from expected output. ==> expected: <-1> but was: <1>
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.007 s  <<< ERROR!
+crux.CompilerStageTests.codegen  Time elapsed: 0.002 s  <<< ERROR!
 java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
 Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.019 s  <<< ERROR!
+crux.CompilerStageTests.codegen  Time elapsed: 20.011 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: Timeout for CodeGen for program crux/stages/codegen/test17.crx.
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:295)
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.05 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+
+crux.CompilerStageTests.codegen  Time elapsed: 2.966 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.042 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+
+crux.CompilerStageTests.codegen  Time elapsed: 3.464 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 3.83 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 4.334 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 4.84 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 5.433 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 20.003 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: Timeout for CodeGen for program crux/stages/codegen/test26.crx.
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:295)
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.051 s  <<< ERROR!
 java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
 Caused by: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.01 s  <<< ERROR!
+crux.CompilerStageTests.codegen  Time elapsed: 7.082 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 7.889 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 20.017 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: Timeout for CodeGen for program crux/stages/codegen/test30.crx.
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:295)
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.098 s  <<< ERROR!
 java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
 Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.722 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-CodeGen for program crux/stages/codegen/test19.crx differs from expected output. ==> expected: <0
-1
-2
-3
-4
-5> but was: <1>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.699 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test21.crx differs from expected output. ==> expected: <Hello> but was: <ÿÿÿÿ>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.659 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test22.crx differs from expected output. ==> expected: <100> but was: <1>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.7 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test24.crx differs from expected output. ==> expected: <100> but was: <1>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.631 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test25.crx differs from expected output. ==> expected: <0-1> but was: <14294967295>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.007 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.007 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.624 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test28.crx differs from expected output. ==> expected: <789> but was: <142949672954294967295>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.661 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-CodeGen for program crux/stages/codegen/test29.crx differs from expected output. ==> expected: <true
-false
-false> but was: <true
-true
-true>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.6 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test30.crx differs from expected output. ==> expected: <02223334440> but was: <14294967295429496729542949672954294967295>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.007 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.006 s  <<< ERROR!
+crux.CompilerStageTests.codegen  Time elapsed: 0.046 s  <<< ERROR!
 java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.BooleanConstant (crux.ir.LocalVar and crux.ir.BooleanConstant are in unnamed module of loader 'app')
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
 Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.BooleanConstant (crux.ir.LocalVar and crux.ir.BooleanConstant are in unnamed module of loader 'app')
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.678 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-CodeGen for program crux/stages/codegen/test33.crx differs from expected output. ==> expected: <1
-1
-true
-0
-false
-1
-0
-false
-0
-false> but was: <1
-true
-4294967295
-true
-4294967295
-true
-4294967295
-true>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.716 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-CodeGen for program crux/stages/codegen/test34.crx differs from expected output. ==> expected: <22
-38
-1
-5
-7
-0
-3
-56
-5
-11
-4> but was: <1
-4294967295
-4294967295
-4294967295
-4294967295
-4294967295
-4294967295
-4294967295
-4294967295
-4294967295
-4294967295>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.632 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-CodeGen for program crux/stages/codegen/test35.crx differs from expected output. ==> expected: <0
-1
-12
-123> but was: <1
-4294967295
-42949672954294967295
-429496729542949672954294967295>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+crux.CompilerStageTests.codegen  Time elapsed: 9.9 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+Caused by: java.lang.Error: Assembling and linking failed
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.01 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.BooleanConstant (crux.ir.LocalVar and crux.ir.BooleanConstant are in unnamed module of loader 'app')
+crux.CompilerStageTests.codegen  Time elapsed: 10.891 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.BooleanConstant (crux.ir.LocalVar and crux.ir.BooleanConstant are in unnamed module of loader 'app')
+Caused by: java.lang.Error: Assembling and linking failed
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.007 s  <<< ERROR!
+crux.CompilerStageTests.codegen  Time elapsed: 11.537 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.114 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.ClassCastException
+
+crux.CompilerStageTests.codegen  Time elapsed: 12.765 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.123 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.ClassCastException
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.042 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.NullPointerException
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.044 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.ClassCastException
+
+crux.CompilerStageTests.codegen  Time elapsed: 13.625 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.Error: Assembling and linking failed
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.128 s  <<< ERROR!
 java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
 Caused by: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.012 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+crux.CompilerStageTests.codegen  Time elapsed: 14.219 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+Caused by: java.lang.Error: Assembling and linking failed
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
+crux.CompilerStageTests.codegen  Time elapsed: 0.139 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.NullPointerException: Cannot invoke "java.lang.Integer.intValue()" because the return value of "java.util.HashMap.get(Object)" is null
+Caused by: java.lang.ClassCastException
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.64 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: CodeGen for program crux/stages/codegen/test43.crx differs from expected output. ==> expected: <36> but was: <14294967295>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.006 s  <<< ERROR!
+crux.CompilerStageTests.codegen  Time elapsed: 0.041 s  <<< ERROR!
 java.util.concurrent.ExecutionException: java.lang.ArrayIndexOutOfBoundsException: Index 6 out of bounds for length 6
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
 Caused by: java.lang.ArrayIndexOutOfBoundsException: Index 6 out of bounds for length 6
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.008 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+crux.CompilerStageTests.codegen  Time elapsed: 0.049 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+Caused by: java.lang.ClassCastException
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.632 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: 
-CodeGen for program crux/stages/codegen/test47.crx differs from expected output. ==> expected: <true
-3
-20
-1> but was: <1>
-	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:297)
-
-crux.CompilerStageTests.codegen  Time elapsed: 0.006 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+crux.CompilerStageTests.codegen  Time elapsed: 15.779 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.Error: Assembling and linking failed
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+Caused by: java.lang.Error: Assembling and linking failed
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.006 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.BooleanConstant (crux.ir.LocalVar and crux.ir.BooleanConstant are in unnamed module of loader 'app')
+crux.CompilerStageTests.codegen  Time elapsed: 0.148 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.BooleanConstant (crux.ir.LocalVar and crux.ir.BooleanConstant are in unnamed module of loader 'app')
+Caused by: java.lang.ClassCastException
 
-crux.CompilerStageTests.codegen  Time elapsed: 0.006 s  <<< ERROR!
-java.util.concurrent.ExecutionException: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+crux.CompilerStageTests.codegen  Time elapsed: 0.051 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
 	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
-Caused by: java.lang.ClassCastException: class crux.ir.LocalVar cannot be cast to class crux.ir.IntegerConstant (crux.ir.LocalVar and crux.ir.IntegerConstant are in unnamed module of loader 'app')
+Caused by: java.lang.ClassCastException
+
+crux.CompilerStageTests.codegen  Time elapsed: 0.048 s  <<< ERROR!
+java.util.concurrent.ExecutionException: java.lang.ClassCastException
+	at crux.CompilerStageTests.lambda$codegen$9(CompilerStageTests.java:290)
+Caused by: java.lang.ClassCastException
 
