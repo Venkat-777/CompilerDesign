@@ -1,19 +1,20 @@
     .globl main
 main:
-    enter $(8 * 3), $0
+    enter $(8 * 2), $0
     /* nop */
     /* nop */
-    /* $t0 = 1 */
+    /* $t0 = true */
     movq $1, %r10
     movq %r10, -8(%rbp)
-    /* $t1 = 1 */
-    movq $1, %r10
+    /* call Symbol(printBool:func(TypeList(bool)):void) ($t0) */
+    movq -8(%rbp), %rdi
+    call printBool
+    /* nop */
+    /* $t1 = false */
+    movq $0, %r10
     movq %r10, -16(%rbp)
-    /* $t2 = $t0 + $t1 */
-    movq -0(), %r10
-    addq 
-    /* call Symbol(printInt:func(TypeList(int)):void) ($t2) */
+    /* call Symbol(printBool:func(TypeList(bool)):void) ($t1) */
     movq -16(%rbp), %rdi
-    call printInt
+    call printBool
     leave
     ret

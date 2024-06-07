@@ -2,6 +2,7 @@ package crux.backend;
 
 import crux.ast.SymbolTable.Symbol;
 import crux.ast.types.BoolType;
+import crux.ast.types.FuncType;
 import crux.ast.types.IntType;
 import crux.ir.*;
 import crux.ir.insts.*;
@@ -96,6 +97,7 @@ public final class CodeGen extends InstVisitor {
     out.printLabel(f.getName() + ":");
 
     var numslots = f.getNumTempVars() + f.getNumTempAddressVars();
+    numslots = (numslots + 1) & ~1; //round to nearest even
     out.printCode("enter $(8 * " + numslots + "), $0");
 
     for (int i = 1; i <= f.getArguments().size(); ++i)
@@ -127,15 +129,27 @@ public final class CodeGen extends InstVisitor {
   {
     printInstructionInfo(i);
 
-    var left = i.getLeftOperand().getName();
-    var right = i.getLeftOperand().getName();
+    var left = i.getLeftOperand();
+    var right = i.getRightOperand();
+    var src = i.getDst();
+    int leftIndex = varIndexMap.get(left);
+    int rightIndex = varIndexMap.get(right);
 
-    printVarToReg("", 0, "%r10"); //add right operand to r10
+    if (!varIndexMap.containsKey(src))
+    {
+      varIndex++;
+      varIndexMap.put(src, varIndex);
+    }
+    int srcIndex = varIndexMap.get(src);
+
+    printVarToReg("%rbp", (rightIndex+1)*8, "%r10"); //add right operand to r10
 
     if (i.getOperator() == BinaryOperator.Op.Add)
     {
-      out.printCode("addq " + "%r10");
+      out.printCode("addq -" + (leftIndex+1)*8 + "(%rbp)" + ", %r10");
     }
+
+    printRegToVar("%r10", "%rbp", srcIndex*8);
   }
 
   public void visit(CompareInst i)
@@ -147,9 +161,6 @@ public final class CodeGen extends InstVisitor {
   {
     printInstructionInfo(i);
 
-    varIndexMap.put(i.getDstVar(), varIndex);
-    varIndex++;
-
     var iType = i.getSrcValue().getType();
 
     String dest = "%r10";
@@ -157,10 +168,14 @@ public final class CodeGen extends InstVisitor {
     {
       var iCast = (IntegerConstant) i.getSrcValue();
       int src = (int) iCast.getValue();
+      varIndexMap.put(i.getDstVar(), src);
+      varIndex++;
       printIntToReg(src, dest); //$x to %r10
     } else if (iType instanceof BoolType) {
       var iCast = (BooleanConstant) i.getSrcValue();
       int src = iCast.getValue() ? 1 : 0;
+      varIndexMap.put(i.getDstVar(), src);
+      varIndex++;
       printIntToReg(src, dest); //$x to %r10
     }
 
