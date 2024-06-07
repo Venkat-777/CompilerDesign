@@ -1,5 +1,6 @@
 package crux.backend;
 
+import crux.ast.OpExpr;
 import crux.ast.SymbolTable.Symbol;
 import crux.ast.types.BoolType;
 import crux.ast.types.FuncType;
@@ -184,8 +185,6 @@ public final class CodeGen extends InstVisitor {
     int leftIndex = varIndexMap.get(left);
     int rightIndex = varIndexMap.get(right);
 
-    printVarToReg("%rbp", (leftIndex)*8, "%r10"); //add right operand to r10
-
     if (!varIndexMap.containsKey(src))
     {
       varIndex++;
@@ -195,22 +194,26 @@ public final class CodeGen extends InstVisitor {
 
     if (i.getOperator() == BinaryOperator.Op.Add)
     {
+      printVarToReg("%rbp", (leftIndex)*8, "%r10"); //add right operand to r10
       out.printCode("addq -" + (rightIndex)*8 + "(%rbp)" + ", %r10");
+      printRegToVar("%r10", "%rbp", srcIndex*8);
     } else if (i.getOperator() == BinaryOperator.Op.Sub)
     {
+      printVarToReg("%rbp", (leftIndex)*8, "%r10"); //add right operand to r10
       out.printCode("subq -" + (rightIndex)*8 + "(%rbp)" + ", %r10");
+      printRegToVar("%r10", "%rbp", srcIndex*8);
     } else if (i.getOperator() == BinaryOperator.Op.Mul)
     {
+      printVarToReg("%rbp", (leftIndex)*8, "%r10"); //add right operand to r10
       out.printCode("imul -" + (rightIndex)*8 + "(%rbp)" + ", %r10");
+      printRegToVar("%r10", "%rbp", srcIndex*8);
     } else
     {
-      out.printCode("movq "+leftIndex+"(%rbp), %rax");
+      out.printCode("movq -"+leftIndex*8+"(%rbp), %rax");
       out.printCode("cqto");
-      out.printCode("idivq " + rightIndex + "(%rbp)");
-      out.printCode("movq %rax, "+ srcIndex+"(%rbp)");
+      out.printCode("idivq -" +rightIndex*8+ "(%rbp)");
+      out.printCode("movq %rax, -"+srcIndex*8+"(%rbp)");
     }
-
-    printRegToVar("%r10", "%rbp", srcIndex*8);
   }
 
   public void visit(CompareInst i)
@@ -230,9 +233,31 @@ public final class CodeGen extends InstVisitor {
     int rhsslot = varIndexMap.get(right);
     out.printCode("movq $0, %rax");
     out.printCode("movq $1, %r10");
-    printVarToReg("%rbp",lhsslot*8,"%r10");
-    out.printCode("movq -"+rhsslot*8+"(%rbp), %r11");
-    out.printCode("cmovg %r10, %rax");
+    printVarToReg("%rbp",lhsslot*8,"%r11");
+    out.printCode("cmp -"+ rhsslot*8 + "(%rbp) , %r11");
+
+    switch (i.getPredicate())
+    {
+      case GT:
+        out.printCode("cmovg %r10, %rax");
+        break;
+      case GE:
+        out.printCode("cmovge %r10, %rax");
+        break;
+      case LT:
+        out.printCode("cmovl %r10, %rax");
+        break;
+      case LE:
+        out.printCode("cmovle %r10, %rax");
+        break;
+      case EQ:
+        out.printCode("cmove %r10, %rax");
+        break;
+      case NE:
+        out.printCode("cmovne %r10, %rax");
+        break;
+    }
+
     printRegToVar("%rax","%rbp",dstslot*8);
 
   }
