@@ -220,13 +220,18 @@ public final class CodeGen extends InstVisitor {
     var dest = i.getDst();
     var left = i.getLeftOperand();
     var right = i.getRightOperand();
+    if (!varIndexMap.containsKey(dest))
+    {
+      varIndex++;
+      varIndexMap.put(dest, varIndex);
+    }
     int dstslot = varIndexMap.get(dest);
     int lhsslot = varIndexMap.get(left);
     int rhsslot = varIndexMap.get(right);
     out.printCode("movq $0, %rax");
     out.printCode("movq $1, %r10");
     printVarToReg("%rbp",lhsslot*8,"%r10");
-    out.printCode("-"+rhsslot*8+"(%rbp), %r11");
+    out.printCode("movq -"+rhsslot*8+"(%rbp), %r11");
     out.printCode("cmovg %r10, %rax");
     printRegToVar("%rax","%rbp",dstslot*8);
 
