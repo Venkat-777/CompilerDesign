@@ -273,12 +273,12 @@ public final class CodeGen extends InstVisitor {
     {
       var srcVar = i.getSrcValue();
       var srcOffset = varIndexMap.get(srcVar);
+      printVarToReg("%rbp", srcOffset*8, "%r10");
       if (!varIndexMap.containsKey(i.getDstVar()))
       {
         varIndex++;
         varIndexMap.put(i.getDstVar(), varIndex);
       }
-      printVarToReg("%rbp", srcOffset*8, dest);
     } else //src is a constant
     {
       var iType = i.getSrcValue().getType();
