@@ -44,7 +44,7 @@ public final class CodeGen extends InstVisitor {
 
   public Integer getVarIndex(Variable var) //returns Integer value
   {
-      return varIndexMap.get(var);
+    return varIndexMap.get(var);
   }
 
   public void storeVar(Variable var) //stores to bottom of map
@@ -92,7 +92,7 @@ public final class CodeGen extends InstVisitor {
       Function f = func_it.next();
       genCode(f, count);
     }
-    
+
     out.close();
   }
 
@@ -399,8 +399,7 @@ public final class CodeGen extends InstVisitor {
 
     out.printCode("call " + i.getCallee().getName());
 
-    var func = (FuncType) i.getCallee().getType();
-    if (!(func.getRet() instanceof VoidType))
+    if (!(i.getCallee().getType() instanceof VoidType))
     {
       varIndex++;
       varIndexMap.put(i.getDst(), varIndex);
@@ -408,11 +407,6 @@ public final class CodeGen extends InstVisitor {
       printRegToVar("%rax", "%rbp", offset*8);
     }
 
-    if (i.getParams().size() > 6)
-    {
-      var numOnStack = numParams - 6;
-      out.printCode("addq $" + numOnStack + ", (%rsp)");
-    }
   }
 
   public void visit(UnaryNotInst i)
