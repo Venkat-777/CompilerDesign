@@ -375,6 +375,9 @@ public final class CodeGen extends InstVisitor {
       var offset = varIndexMap.get(localVar);
       printVarToReg("%rbp" , offset*8, "%rax");
     }
+
+    out.printCode("leave");
+    out.printCode("ret");
   }
 
   public void visit(CallInst i)
