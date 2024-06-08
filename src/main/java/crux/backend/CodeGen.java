@@ -105,6 +105,7 @@ public final class CodeGen extends InstVisitor {
 
     var numslots = f.getNumTempVars() + f.getNumTempAddressVars();
     numslots = (numslots + 1) & ~1; //rounds to nearest even
+    varIndex = 0;
     out.printCode("enter $(8 * " + numslots + "), $0");
 
     for (int i = 0; i < f.getArguments().size(); ++i)
@@ -399,13 +400,21 @@ public final class CodeGen extends InstVisitor {
 
     out.printCode("call " + i.getCallee().getName());
 
-    if (!(i.getCallee().getType() instanceof VoidType))
+    var func = (FuncType) i.getCallee().getType();
+    if (!(func.getRet() instanceof VoidType))
     {
       varIndex++;
       varIndexMap.put(i.getDst(), varIndex);
       var offset = varIndexMap.get(i.getDst());
       printRegToVar("%rax", "%rbp", offset*8);
     }
+
+    if (i.getParams().size() > 6)
+    {
+      var numOnStack = numParams - 6;
+      out.printCode("addq $" + numOnStack + ", (%rsp)");
+    }
+
 
   }
 
