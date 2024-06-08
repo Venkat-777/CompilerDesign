@@ -107,12 +107,12 @@ public final class CodeGen extends InstVisitor {
     numslots = (numslots + 1) & ~1; //rounds to nearest even
     out.printCode("enter $(8 * " + numslots + "), $0");
 
-    for (int i = 1; i <= f.getArguments().size(); ++i)
+    for (int i = 0; i < f.getArguments().size(); ++i)
     {
-      var temp = f.getTempVar(f.getArguments().get(i-1).getType());
+      var temp = f.getArguments().get(i);
       varIndex++;
       varIndexMap.put(temp, varIndex); //offset is stored as positive
-      printRegToVar(registers[i-1], "%rbp", varIndex*8);
+      printRegToVar(registers[i], "%rbp", varIndex*8);
     }
 
     // visit function body and generate code
@@ -385,7 +385,13 @@ public final class CodeGen extends InstVisitor {
 
     for (int j = numParams; j > 0; j--)
     {
-      printVarToReg("%rbp", varIndexMap.get(i.getParams().get(j-1))*8, registers[j-1]);
+      if (!varIndexMap.containsKey(i.getParams().get(j-1)))
+      {
+        varIndex++;
+        varIndexMap.put(i.getParams().get(j-1), varIndex);
+      }
+      var offset = varIndexMap.get(i.getParams().get(j-1));
+      printVarToReg("%rbp", offset*8, registers[j-1]);
     }
 
     out.printCode("call " + i.getCallee().getName());
@@ -397,7 +403,8 @@ public final class CodeGen extends InstVisitor {
         varIndex++;
         varIndexMap.put(i.getDst(), varIndex);
       }
-      printRegToVar("%rax", "%rbp", varIndexMap.get(i.getDst())*8);
+      var offset = varIndexMap.get(i.getDst());
+      printRegToVar("%rax", "%rbp", offset*8);
     }
 
   }
