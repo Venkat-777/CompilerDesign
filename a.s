@@ -1,117 +1,150 @@
-    .globl myPrintZero
-myPrintZero:
-    enter $(8 * 2), $0
-    /* $t0 = 0 */
-    /* CopyInst */
-    movq $0, %r10
-    movq %r10, -8(%rbp)
-    /* call Symbol(printInt:func(TypeList(int)):void) ($t0) */
-    movq -8(%rbp), %rdi
-    call printInt
-    movq %rax, -16(%rbp)
-    leave
-    ret
-    .globl myPrintOne
-myPrintOne:
-    enter $(8 * 2), $0
-    movq %rdi, -24(%rbp)
-    /* call Symbol(printInt:func(TypeList(int)):void) ($a0) */
+    .globl test
+test:
+    enter $(8 * 8), $0
+    movq %rdi, -8(%rbp)
+    movq %rsi, -16(%rbp)
+    /* $t2 = $t0 + $t1 */
+    movq -8(%rbp), %r10
+    addq -16(%rbp), %r10
+    movq %r10, -24(%rbp)
+    /* call Symbol(printInt:func(TypeList(int)):void) ($t2) */
     movq -24(%rbp), %rdi
     call printInt
-    movq %rax, -32(%rbp)
-    leave
-    ret
-    .globl myPrintTwo
-myPrintTwo:
-    enter $(8 * 2), $0
-    movq %rdi, -40(%rbp)
-    movq %rsi, -48(%rbp)
-    /* call Symbol(printInt:func(TypeList(int)):void) ($a0) */
-    movq -40(%rbp), %rdi
-    call printInt
-    movq %rax, -56(%rbp)
-    /* call Symbol(printInt:func(TypeList(int)):void) ($b1) */
-    movq -48(%rbp), %rdi
-    call printInt
-    movq %rax, -64(%rbp)
-    leave
-    ret
-    .globl myPrintThree
-myPrintThree:
-    enter $(8 * 4), $0
-    movq %rdi, -72(%rbp)
-    movq %rsi, -80(%rbp)
-    movq %rdx, -88(%rbp)
-    /* call Symbol(printInt:func(TypeList(int)):void) ($a0) */
-    movq -72(%rbp), %rdi
-    call printInt
-    movq %rax, -96(%rbp)
-    /* call Symbol(printInt:func(TypeList(int)):void) ($b1) */
-    movq -80(%rbp), %rdi
-    call printInt
-    movq %rax, -104(%rbp)
-    /* call Symbol(printInt:func(TypeList(int)):void) ($c2) */
-    movq -88(%rbp), %rdi
-    call printInt
-    movq %rax, -112(%rbp)
-    leave
-    ret
-    .globl main
-main:
-    enter $(8 * 6), $0
-    /* call Symbol(myPrintZero:func(TypeList()):void) () */
-    call myPrintZero
-    movq %rax, -120(%rbp)
     /* call Symbol(println:func(TypeList()):void) () */
     call println
+    /* $t3 = $t0 - $t1 */
+    movq -8(%rbp), %r10
+    subq -16(%rbp), %r10
+    movq %r10, -32(%rbp)
+    /* call Symbol(printInt:func(TypeList(int)):void) ($t3) */
+    movq -32(%rbp), %rdi
+    call printInt
+    /* call Symbol(println:func(TypeList()):void) () */
+    call println
+    /* $t4 = $t0 * $t1 */
+    movq -8(%rbp), %r10
+    imul -16(%rbp), %r10
+    movq %r10, -40(%rbp)
+    /* call Symbol(printInt:func(TypeList(int)):void) ($t4) */
+    movq -40(%rbp), %rdi
+    call printInt
+    /* call Symbol(println:func(TypeList()):void) () */
+    call println
+    /* $t5 = 0 */
+    /* CopyInst */
+    movq $0, %r10
+    movq %r10, -48(%rbp)
+    /* $t6 = $t1 != $t5 */
+    movq $0, %rax
+    movq $1, %r10
+    movq -16(%rbp), %r11
+    cmp -48(%rbp) , %r11
+    cmovne %r10, %rax
+    movq %rax, -56(%rbp)
+    /* jump $t6 */
+    movq -56(%rbp), %r10
+    cmp $1, %r10
+    je L1
+    /* call Symbol(println:func(TypeList()):void) () */
+    call println
+L2:
+    leave
+    ret
+L1:
+    /* $t7 = $t0 / $t1 */
+    movq -8(%rbp), %rax
+    cqto
+    idivq -16(%rbp)
+    movq %rax, -64(%rbp)
+    /* call Symbol(printInt:func(TypeList(int)):void) ($t7) */
+    movq -64(%rbp), %rdi
+    call printInt
+    /* call Symbol(println:func(TypeList()):void) () */
+    call println
+    jmp L2
+    .globl main
+main:
+    enter $(8 * 12), $0
+    /* $t2 = 0 */
+    /* CopyInst */
+    movq $0, %r10
+    movq %r10, -72(%rbp)
+    /* $i0 = $t2 */
+    /* CopyInst */
+    movq -72(%rbp), %r10
+    movq %r10, -80(%rbp)
+L5:
+    /* $t3 = 10 */
+    /* CopyInst */
+    movq $10, %r10
+    movq %r10, -88(%rbp)
+    /* $t4 = $i0 > $t3 */
+    movq $0, %rax
+    movq $1, %r10
+    movq -80(%rbp), %r11
+    cmp -88(%rbp) , %r11
+    cmovg %r10, %rax
+    movq %rax, -96(%rbp)
+    /* jump $t4 */
+    movq -96(%rbp), %r10
+    cmp $1, %r10
+    je L3
+    /* $t5 = 0 */
+    /* CopyInst */
+    movq $0, %r10
+    movq %r10, -104(%rbp)
+    /* $j1 = $t5 */
+    /* CopyInst */
+    movq -104(%rbp), %r10
+    movq %r10, -112(%rbp)
+L6:
+    /* $t6 = 10 */
+    /* CopyInst */
+    movq $10, %r10
+    movq %r10, -120(%rbp)
+    /* $t7 = $j1 > $t6 */
+    movq $0, %rax
+    movq $1, %r10
+    movq -112(%rbp), %r11
+    cmp -120(%rbp) , %r11
+    cmovg %r10, %rax
     movq %rax, -128(%rbp)
-    /* $t0 = 1 */
+    /* jump $t7 */
+    movq -128(%rbp), %r10
+    cmp $1, %r10
+    je L4
+    /* call Symbol(printInt:func(TypeList(int)):void) ($j1) */
+    movq -112(%rbp), %rdi
+    call printInt
+    /* call Symbol(println:func(TypeList()):void) () */
+    call println
+    /* $t8 = 1 */
     /* CopyInst */
     movq $1, %r10
     movq %r10, -136(%rbp)
-    /* call Symbol(myPrintOne:func(TypeList(int)):void) ($t0) */
-    movq -136(%rbp), %rdi
-    call myPrintOne
-    movq %rax, -144(%rbp)
-    /* call Symbol(println:func(TypeList()):void) () */
-    call println
-    movq %rax, -152(%rbp)
-    /* $t1 = 1 */
+    /* $t9 = $j1 + $t8 */
+    movq -112(%rbp), %r10
+    addq -136(%rbp), %r10
+    movq %r10, -144(%rbp)
+    /* $j1 = $t9 */
+    /* CopyInst */
+    movq -144(%rbp), %r10
+    movq %r10, -112(%rbp)
+    jmp L6
+L4:
+    /* $t10 = 1 */
     /* CopyInst */
     movq $1, %r10
+    movq %r10, -152(%rbp)
+    /* $t11 = $i0 + $t10 */
+    movq -80(%rbp), %r10
+    addq -152(%rbp), %r10
     movq %r10, -160(%rbp)
-    /* $t2 = 2 */
+    /* $i0 = $t11 */
     /* CopyInst */
-    movq $2, %r10
-    movq %r10, -168(%rbp)
-    /* call Symbol(myPrintTwo:func(TypeList(int, int)):void) ($t1$t2) */
-    movq -168(%rbp), %rsi
-    movq -160(%rbp), %rdi
-    call myPrintTwo
-    movq %rax, -176(%rbp)
-    /* call Symbol(println:func(TypeList()):void) () */
-    call println
-    movq %rax, -184(%rbp)
-    /* $t3 = 1 */
-    /* CopyInst */
-    movq $1, %r10
-    movq %r10, -192(%rbp)
-    /* $t4 = 2 */
-    /* CopyInst */
-    movq $2, %r10
-    movq %r10, -200(%rbp)
-    /* $t5 = 3 */
-    /* CopyInst */
-    movq $3, %r10
-    movq %r10, -208(%rbp)
-    /* call Symbol(myPrintThree:func(TypeList(int, int, int)):void) ($t3$t4$t5) */
-    movq -208(%rbp), %rdx
-    movq -200(%rbp), %rsi
-    movq -192(%rbp), %rdi
-    call myPrintThree
-    movq %rax, -216(%rbp)
-    /* call Symbol(println:func(TypeList()):void) () */
-    call println
-    movq %rax, -224(%rbp)
+    movq -160(%rbp), %r10
+    movq %r10, -80(%rbp)
+    jmp L5
+L3:
     leave
     ret

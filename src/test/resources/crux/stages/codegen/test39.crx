@@ -28,9 +28,18 @@ void main() {
        if (j > 10) {
          break;
        }
-       test(i, j);
+	printInt(j);
+	println();
        j = j + 1;
     }
     i = i + 1;
   }
 }
+
+
+
+
+
+
+
+
