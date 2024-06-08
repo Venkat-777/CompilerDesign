@@ -401,11 +401,8 @@ public final class CodeGen extends InstVisitor {
 
     if (!(i.getCallee().getType() instanceof VoidType))
     {
-      if (!varIndexMap.containsKey(i.getDst()))
-      {
-        varIndex++;
-        varIndexMap.put(i.getDst(), varIndex);
-      }
+      varIndex++;
+      varIndexMap.put(i.getDst(), varIndex);
       var offset = varIndexMap.get(i.getDst());
       printRegToVar("%rax", "%rbp", offset*8);
     }
