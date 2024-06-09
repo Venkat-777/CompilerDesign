@@ -108,12 +108,21 @@ public final class CodeGen extends InstVisitor {
     varIndex = 0;
     out.printCode("enter $(8 * " + numslots + "), $0");
 
-    for (int i = 0; i < f.getArguments().size(); ++i)
+    var argNums = Math.min(f.getArguments().size(), 6);
+    for (int i = 0; i < argNums; ++i)
     {
       var temp = f.getArguments().get(i);
       varIndex++;
       varIndexMap.put(temp, varIndex); //offset is stored as positive
       printRegToVar(registers[i], "%rbp", varIndex*8);
+    }
+
+    int stackIndex = -1;
+    for (int i = 6; i < f.getArguments().size(); ++i)
+    {
+      var temp = f.getArguments().get(i);
+      varIndexMap.put(temp, stackIndex);
+      stackIndex--;
     }
 
     // visit function body and generate code
@@ -383,19 +392,52 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(CallInst i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
 
     int numParams = i.getParams().size();
-
-    for (int j = numParams; j > 0; j--)
+    if (numParams <= 6)
     {
-      if (!varIndexMap.containsKey(i.getParams().get(j-1)))
+      for (int j = numParams; j > 0; j--)
       {
-        varIndex++;
-        varIndexMap.put(i.getParams().get(j-1), varIndex);
+        if (!varIndexMap.containsKey(i.getParams().get(j-1)))
+        {
+          varIndex++;
+          varIndexMap.put(i.getParams().get(j-1), varIndex);
+        }
+        var offset = varIndexMap.get(i.getParams().get(j-1));
+        if (offset > 0)
+        {
+          printVarToReg("%rbp", offset*8, registers[j-1]);
+        } else
+        {
+          offset--;
+          out.printCode("movq " + offset*-8 + "(%rbp)" + ", " + registers[j-1]);
+        }
       }
-      var offset = varIndexMap.get(i.getParams().get(j-1));
-      printVarToReg("%rbp", offset*8, registers[j-1]);
+    } else //when there is 7-n arguments
+    {
+      for (int j = 0; j < 6; j++) //handle arguments 1~6
+      {
+        var param = i.getParams().get(j);
+        if (!varIndexMap.containsKey(param))
+        {
+          varIndex++;
+          varIndexMap.put(param, varIndex);
+        }
+        var offset = varIndexMap.get(param);
+        printVarToReg("%rbp", offset*8, registers[j]);
+      }
+
+      //handle 7-n arguments
+      var paramsLeft = numParams - 6;
+      paramsLeft = (paramsLeft + 1) & ~1; //rounds to nearest even
+      out.printCode("subq $" + paramsLeft*8 + ", %rsp");
+
+      for (int j = numParams-6; j > 0; j--)
+      {
+        printVarToReg("%rbp", j*8 + 48, "%r10");
+        out.printCode("movq %r10, " + (j-1)*8 + "(%rsp)");
+      }
     }
 
     out.printCode("call " + i.getCallee().getName());
@@ -412,10 +454,9 @@ public final class CodeGen extends InstVisitor {
     if (i.getParams().size() > 6)
     {
       var numOnStack = numParams - 6;
-      out.printCode("addq $" + numOnStack + ", (%rsp)");
+      numOnStack = (numOnStack + 1) & ~1; //rounds to nearest even
+      out.printCode("addq $" + numOnStack*8 + ", %rsp");
     }
-
-
   }
 
   public void visit(UnaryNotInst i)
