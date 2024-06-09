@@ -321,6 +321,11 @@ public final class CodeGen extends InstVisitor {
     printInstructionInfo(i);
 
     var predicate = i.getPredicate();
+    if (!varIndexMap.containsKey(predicate))
+    {
+      varIndex++;
+      varIndexMap.put(predicate, varIndex);
+    }
     var offset = varIndexMap.get(predicate);
     printVarToReg("%rbp", offset*8, "%r10");
 
