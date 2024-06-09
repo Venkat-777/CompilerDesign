@@ -1,5 +1,6 @@
 package crux.backend;
 
+import crux.ast.LiteralBool;
 import crux.ast.OpExpr;
 import crux.ast.SymbolTable.Symbol;
 import crux.ast.types.BoolType;
@@ -165,8 +166,8 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(AddressAt i)
   {
-    printInstructionInfo(i);
-    out.printCode("/* AddressAt */");
+    //printInstructionInfo(i);
+    //out.printCode("/* AddressAt */");
 
     var varName = i.getBase().getName();
     out.printCode("movq " + varName + "@GOTPCREL(%rip), %r11");
@@ -187,7 +188,7 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(BinaryOperator i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
 
     var left = i.getLeftOperand();
     var right = i.getRightOperand();
@@ -228,7 +229,7 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(CompareInst i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
 
     var dest = i.getDst();
     var left = i.getLeftOperand();
@@ -274,7 +275,7 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(CopyInst i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
     out.printCode("/* CopyInst */");
 
     var dest = "%r10";
@@ -318,7 +319,7 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(JumpInst i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
 
     var predicate = i.getPredicate();
     if (!varIndexMap.containsKey(predicate))
@@ -345,8 +346,8 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(LoadInst i)
   {
-    printInstructionInfo(i);
-    out.printCode("/* LoadInst */");
+    //printInstructionInfo(i);
+    //out.printCode("/* LoadInst */");
 
     var srcAddress = i.getSrcAddress();
     var srcOffset = varIndexMap.get(srcAddress);
@@ -366,7 +367,8 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(StoreInst i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
+
     out.printCode("/* StoreInst */");
 
     var srcVar = i.getSrcValue();
@@ -382,7 +384,7 @@ public final class CodeGen extends InstVisitor {
 
   public void visit(ReturnInst i)
   {
-    printInstructionInfo(i);
+    //printInstructionInfo(i);
 
     if (i.getReturnValue() != null)
     {
@@ -470,8 +472,12 @@ public final class CodeGen extends InstVisitor {
 
     var inner = i.getInner();
     var val = (Value) inner;
-
-    printIntToReg(1, "%r11");
-    out.printCode("subq " + val + ", %r11");
+    int UnaryNotSlot = varIndexMap.get(i.getInner());
+    printVarToReg("%rbp",UnaryNotSlot*8,"%r10");
+    out.printCode("movq $1, %r11");
+    out.printCode("subq %r10, %r11");
+    varIndex++;
+    varIndexMap.put(i.getDst(),varIndex);
+    printRegToVar("%r11","%rbp",varIndex*8);
   }
 }
