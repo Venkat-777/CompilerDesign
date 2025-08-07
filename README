@@ -1,1 +1,102 @@
-A compiler that converts code to machine code in five stages: Parser -> AST -> Type check -> Control Flow Graph -> Assembly & Machine Code. 
+Absolutely! Here’s the complete copy-paste-ready README.md content for your compiler project, with everything formatted cleanly for GitHub:
+
+⸻
+
+
+# Crux Compiler Project
+
+This project is a **compiler** that translates source code into machine code through five major stages:
+
+1. **Parser**
+2. **Abstract Syntax Tree (AST) Construction**
+3. **Type Checking**
+4. **Control Flow Graph (CFG) Generation**
+5. **Assembly & Machine Code Generation**
+
+The compiler is written in **Java** using **Maven** for build automation, and uses **ANTLR** for parsing.
+
+---
+
+## 🗂️ Repository Structure
+
+- `src/` – Main source code for the compiler
+- `a.s` – Generated assembly output file
+- `file` / `file.o` – Intermediate files for compilation
+- `runtime.o` – Precompiled runtime object file for linking
+- `pom.xml` – Maven project configuration
+- `crux.iml` – IntelliJ IDEA module file
+- `.idea/` – IntelliJ project settings (can be ignored)
+- `antlr-intellij-plugin-v4/lib/` – ANTLR plugin libraries
+- `target/` – Maven build output directory
+
+---
+
+## 🔧 Build Instructions
+
+### Prerequisites
+
+- Java 11 or higher
+- Maven 3.6 or newer
+- (Optional) IntelliJ IDEA for development
+
+### Build the Compiler
+
+```bash
+mvn clean install
+
+Run the Compiler
+
+java -cp target/classes your.package.MainClass input.crx
+
+Replace your.package.MainClass with your actual main class path.
+
+Generate Executable from Assembly
+
+After generating an .s file (assembly), you can compile it using gcc:
+
+gcc -m32 -o output a.s runtime.o
+
+
+⸻
+
+✅ Features
+	•	ANTLR-based recursive descent parser
+	•	AST construction with semantic checks
+	•	Static type checking for variables and expressions
+	•	Control Flow Graph (CFG) generation
+	•	Final output as x86 assembly and machine code
+
+⸻
+
+📦 Compilation Pipeline Overview
+
+Source Code (.crx)
+    ↓
+Parser
+    ↓
+Abstract Syntax Tree (AST)
+    ↓
+Type Checker
+    ↓
+Control Flow Graph (CFG)
+    ↓
+Assembly Code (.s)
+    ↓
+Machine Code (via GCC)
+
+
+⸻
+
+📄 License
+
+This project is intended for academic use. Contributions are welcome!
+
+⸻
+
+
+Let me know if you want to include:
+- A sample `.crx` program and expected output
+- Contributor section
+- Screenshots or diagrams
+
+Happy compiling! 🛠️
