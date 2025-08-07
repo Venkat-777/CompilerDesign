@@ -38,33 +38,39 @@ The compiler is written in **Java** using **Maven** for build automation, and us
 
 ```bash
 mvn clean install
+```
 
-Run the Compiler
+### Run the Compiler
 
+```bash
 java -cp target/classes your.package.MainClass input.crx
+```
 
-Replace your.package.MainClass with your actual main class path.
+*Replace `your.package.MainClass` with your actual main class path.*
 
-Generate Executable from Assembly
+### Generate Executable from Assembly
 
-After generating an .s file (assembly), you can compile it using gcc:
+After generating an `.s` file (assembly), you can compile it using gcc:
 
+```bash
 gcc -m32 -o output a.s runtime.o
+```
 
+---
 
-⸻
+## ✅ Features
 
-✅ Features
-	•	ANTLR-based recursive descent parser
-	•	AST construction with semantic checks
-	•	Static type checking for variables and expressions
-	•	Control Flow Graph (CFG) generation
-	•	Final output as x86 assembly and machine code
+- ANTLR-based recursive descent parser
+- AST construction with semantic checks
+- Static type checking for variables and expressions
+- Control Flow Graph (CFG) generation
+- Final output as x86 assembly and machine code
 
-⸻
+---
 
-📦 Compilation Pipeline Overview
+## 📦 Compilation Pipeline Overview
 
+```
 Source Code (.crx)
     ↓
 Parser
@@ -78,16 +84,10 @@ Control Flow Graph (CFG)
 Assembly Code (.s)
     ↓
 Machine Code (via GCC)
+```
 
+---
 
-⸻
-
-📄 License
+## 📄 License
 
 This project is intended for academic use. Contributions are welcome!
-
-⸻
-- Contributor section
-- Screenshots or diagrams
-
-Happy compiling! 🛠️
